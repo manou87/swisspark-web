@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwissPark - Places de Parking en Suisse</title>
+    <meta name="description" content="Trouvez des places de parking en Suisse pour 3-6 CHF par jour. Application mobile et web pour gérer vos places de parking.">
+    <meta name="keywords" content="parking, suisse, places, location, 3-6 CHF, application">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://suissepark.ch/">
+    <meta property="og:title" content="SwissPark - Places de Parking en Suisse">
+    <meta property="og:description" content="Trouvez des places de parking en Suisse pour 3-6 CHF par jour">
+    <meta property="og:image" content="https://suissepark.ch/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://suissepark.ch/">
+    <meta property="twitter:title" content="SwissPark - Places de Parking en Suisse">
+    <meta property="twitter:description" content="Trouvez des places de parking en Suisse pour 3-6 CHF par jour">
+    <meta property="twitter:image" content="https://suissepark.ch/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/assets/icons/icon-152x152.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SwissPark">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🅿️</span>
+                <span class="logo-text">SwissPark</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link">Accueil</a>
+                <a href="#features" class="nav-link">Fonctionnalités</a>
+                <a href="#pricing" class="nav-link">Tarifs</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <a href="#" class="nav-link download-btn">Télécharger l'App</a>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Trouvez votre place de parking en Suisse
+                </h1>
+                <p class="hero-description">
+                    Places de parking disponibles pour 3-6 CHF par jour. 
+                    Gagnez de l'argent en louant votre place ou trouvez une place rapidement.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary">Commencer à gagner</button>
+                    <button class="btn btn-secondary">Trouver une place</button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Places disponibles</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">4.8⭐</span>
+                        <span class="stat-label">Note utilisateurs</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">3-6 CHF</span>
+                        <span class="stat-label">Prix par jour</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="map-preview">
+                    <div class="map-placeholder">
+                        <span class="map-icon">🗺️</span>
+                        <h3>Carte Interactive</h3>
+                        <p>Visualisez toutes les places disponibles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Pourquoi choisir SwissPark ?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Gagnez de l'argent</h3>
+                    <p>Louez votre place de parking inutilisée et générez des revenus passifs</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Trouvez rapidement</h3>
+                    <p>Localisez des places disponibles en temps réel avec notre carte interactive</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Application mobile</h3>
+                    <p>Gérez vos places depuis votre smartphone, partout en Suisse</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Sécurisé</h3>
+                    <p>Paiements sécurisés et contrats transparents pour votre tranquillité</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2 class="section-title">Tarifs transparents</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Location de place</h3>
+                    <div class="price">3-6 CHF<span>/jour</span></div>
+                    <ul class="pricing-features">
+                        <li>✓ Prix fixe et transparent</li>
+                        <li>✓ Paiement sécurisé</li>
+                        <li>✓ Support client 24/7</li>
+                        <li>✓ Assurance incluse</li>
+                    </ul>
+                    <button class="btn btn-outline">Louer maintenant</button>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="featured-badge">Populaire</div>
+                    <h3>Propriétaire de place</h3>
+                    <div class="price">Gratuit<span></span></div>
+                    <ul class="pricing-features">
+                        <li>✓ Aucun frais d'inscription</li>
+                        <li>✓ 90% des revenus pour vous</li>
+                        <li>✓ Gestion simplifiée</li>
+                        <li>✓ Paiements automatiques</li>
+                    </ul>
+                    <button class="btn btn-primary">Commencer</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Prêt à rejoindre SwissPark ?</h2>
+            <p>Téléchargez l'application et commencez dès aujourd'hui</p>
+            <div class="cta-buttons">
+                <button class="btn btn-primary">Télécharger l'App</button>
+                <button class="btn btn-secondary">En savoir plus</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <span class="logo-icon">🅿️</span>
+                        <span class="logo-text">SwissPark</span>
+                    </div>
+                    <p>La solution de parking intelligente en Suisse</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Produit</h4>
+                    <a href="#features">Fonctionnalités</a>
+                    <a href="#pricing">Tarifs</a>
+                    <a href="#">Télécharger</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="#contact">Contact</a>
+                    <a href="#">Aide</a>
+                    <a href="#">FAQ</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Légal</h4>
+                    <a href="#">Conditions</a>
+                    <a href="#">Confidentialité</a>
+                    <a href="#">CGU</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 SwissPark. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>

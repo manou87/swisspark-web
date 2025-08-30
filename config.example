@@ -1,0 +1,50 @@
+# 🌐 Configuration SwissPark - Variables d'environnement
+# Copiez ce fichier vers .env et remplissez les valeurs
+
+# Configuration du domaine
+DOMAIN=suissepark.ch
+DEPLOY_URL=https://suissepark.ch
+
+# Configuration Vercel
+VERCEL_TOKEN=your_vercel_token_here
+VERCEL_PROJECT_ID=your_project_id_here
+
+# Configuration Netlify
+NETLIFY_TOKEN=your_netlify_token_here
+NETLIFY_SITE_ID=your_site_id_here
+
+# Configuration FTP (optionnel)
+FTP_HOST=your_ftp_host.com
+FTP_USER=your_ftp_username
+FTP_PASS=your_ftp_password
+FTP_PATH=/
+
+# Configuration Google Analytics
+GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Configuration des emails
+SENDGRID_API_KEY=your_sendgrid_api_key
+CONTACT_EMAIL=contact@suissepark.ch
+
+# Configuration de sécurité
+JWT_SECRET=your_jwt_secret_here
+ENCRYPTION_KEY=your_encryption_key_here
+
+# Configuration de la base de données (pour les futures fonctionnalités)
+DATABASE_URL=your_database_url_here
+
+# Configuration des paiements (pour les futures fonctionnalités)
+STRIPE_PUBLIC_KEY=pk_test_your_stripe_key
+STRIPE_SECRET_KEY=sk_test_your_stripe_key
+
+# Configuration des notifications push
+FIREBASE_CONFIG={"apiKey":"your_api_key","authDomain":"your_domain.firebaseapp.com","projectId":"your_project_id","storageBucket":"your_bucket.appspot.com","messagingSenderId":"your_sender_id","appId":"your_app_id"}
+
+# Configuration des services tiers
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+SENTRY_DSN=your_sentry_dsn_here
+
+# Configuration de l'environnement
+NODE_ENV=production
+DEBUG=false
+LOG_LEVEL=info

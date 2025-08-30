@@ -1,0 +1,52 @@
+{
+  "name": "swisspark-web",
+  "version": "1.0.0",
+  "description": "Site web officiel de SwissPark - Places de parking en Suisse",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "start": "python3 -m http.server 8000",
+    "build": "bash deploy.sh",
+    "deploy:vercel": "vercel --prod",
+    "deploy:netlify": "netlify deploy --prod --dir=.",
+    "test": "echo \"Tests à implémenter\"",
+    "lint": "echo \"Linting à implémenter\"",
+    "optimize": "npm run minify-css && npm run minify-js",
+    "minify-css": "cssnano styles.css styles.min.css && mv styles.min.css styles.css",
+    "minify-js": "terser script.js -o script.min.js && mv script.min.js script.js",
+    "analyze": "npx lighthouse http://localhost:8000 --output=html --output-path=./lighthouse-report.html",
+    "screenshot": "npx pageres http://localhost:8000 1920x1080,1366x768,768x1024,375x667 --format=png --output=./screenshots"
+  },
+  "keywords": [
+    "swisspark",
+    "parking",
+    "suisse",
+    "places",
+    "location",
+    "web",
+    "pwa"
+  ],
+  "author": "SwissPark Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/swisspark-web.git"
+  },
+  "homepage": "https://suissepark.ch",
+  "devDependencies": {
+    "cssnano": "^6.0.1",
+    "terser": "^5.24.0",
+    "lighthouse": "^11.6.0",
+    "pageres": "^6.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
