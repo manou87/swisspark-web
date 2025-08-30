@@ -500,6 +500,138 @@ body {
     color: var(--text-muted);
 }
 
+/* Modales d'information */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: var(--background);
+    margin: 5% auto;
+    padding: 0;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close {
+    color: var(--text-muted);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.close:hover,
+.close:focus {
+    color: var(--primary-color);
+}
+
+.modal-info {
+    padding: 40px;
+}
+
+.modal-info h2 {
+    color: var(--primary-color);
+    margin-bottom: 24px;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.modal-info h3 {
+    color: var(--text-primary);
+    margin: 24px 0 16px 0;
+    font-size: 1.25rem;
+}
+
+.modal-info h4 {
+    color: var(--primary-color);
+    margin: 20px 0 12px 0;
+    font-size: 1.125rem;
+}
+
+.modal-info p {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.modal-info ul,
+.modal-info ol {
+    color: var(--text-secondary);
+    margin: 16px 0;
+    padding-left: 20px;
+}
+
+.modal-info li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.modal-info strong {
+    color: var(--text-primary);
+}
+
+.modal-info em {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Options de téléchargement */
+.download-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 24px 0;
+}
+
+.download-option {
+    background: var(--background-light);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.download-option h4 {
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.download-option p {
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-menu {
@@ -549,6 +681,19 @@ body {
         width: 100%;
         max-width: 300px;
     }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .modal-info {
+        padding: 30px 20px;
+    }
+    
+    .download-options {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
@@ -570,6 +715,14 @@ body {
     
     .features, .pricing, .cta {
         padding: 60px 0;
+    }
+    
+    .modal-info h2 {
+        font-size: 1.5rem;
+    }
+    
+    .modal-info h3 {
+        font-size: 1.125rem;
     }
 }
 

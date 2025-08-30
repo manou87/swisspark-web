@@ -54,7 +54,7 @@
                 <a href="#features" class="nav-link">Fonctionnalités</a>
                 <a href="#pricing" class="nav-link">Tarifs</a>
                 <a href="#contact" class="nav-link">Contact</a>
-                <a href="#" class="nav-link download-btn">Télécharger l'App</a>
+                <a href="#" class="nav-link download-btn" onclick="showAppInfo('download')">Télécharger l'App</a>
             </div>
             <div class="nav-toggle">
                 <span></span>
@@ -76,8 +76,8 @@
                     Gagnez de l'argent en louant votre place ou trouvez une place rapidement.
                 </p>
                 <div class="hero-buttons">
-                    <button class="btn btn-primary">Commencer à gagner</button>
-                    <button class="btn btn-secondary">Trouver une place</button>
+                    <button class="btn btn-primary" onclick="showAppInfo('earn')">Commencer à gagner</button>
+                    <button class="btn btn-secondary" onclick="showAppInfo('find')">Trouver une place</button>
                 </div>
                 <div class="hero-stats">
                     <div class="stat">
@@ -149,7 +149,7 @@
                         <li>✓ Support client 24/7</li>
                         <li>✓ Assurance incluse</li>
                     </ul>
-                    <button class="btn btn-outline">Louer maintenant</button>
+                    <button class="btn btn-outline" onclick="showAppInfo('rent')">Louer maintenant</button>
                 </div>
                 <div class="pricing-card featured">
                     <div class="featured-badge">Populaire</div>
@@ -161,7 +161,7 @@
                         <li>✓ Gestion simplifiée</li>
                         <li>✓ Paiements automatiques</li>
                     </ul>
-                    <button class="btn btn-primary">Commencer</button>
+                    <button class="btn btn-primary" onclick="showAppInfo('owner')">Commencer</button>
                 </div>
             </div>
         </div>
@@ -173,8 +173,8 @@
             <h2>Prêt à rejoindre SwissPark ?</h2>
             <p>Téléchargez l'application et commencez dès aujourd'hui</p>
             <div class="cta-buttons">
-                <button class="btn btn-primary">Télécharger l'App</button>
-                <button class="btn btn-secondary">En savoir plus</button>
+                <button class="btn btn-primary" onclick="showAppInfo('download')">Télécharger l'App</button>
+                <button class="btn btn-secondary" onclick="showAppInfo('learn')">En savoir plus</button>
             </div>
         </div>
     </section>
@@ -194,19 +194,19 @@
                     <h4>Produit</h4>
                     <a href="#features">Fonctionnalités</a>
                     <a href="#pricing">Tarifs</a>
-                    <a href="#">Télécharger</a>
+                    <a href="#" onclick="showAppInfo('download')">Télécharger</a>
                 </div>
                 <div class="footer-section">
                     <h4>Support</h4>
                     <a href="#contact">Contact</a>
-                    <a href="#">Aide</a>
-                    <a href="#">FAQ</a>
+                    <a href="#" onclick="showAppInfo('help')">Aide</a>
+                    <a href="#" onclick="showAppInfo('faq')">FAQ</a>
                 </div>
                 <div class="footer-section">
                     <h4>Légal</h4>
-                    <a href="#">Conditions</a>
-                    <a href="#">Confidentialité</a>
-                    <a href="#">CGU</a>
+                    <a href="#" onclick="showAppInfo('terms')">Conditions</a>
+                    <a href="#" onclick="showAppInfo('privacy')">Confidentialité</a>
+                    <a href="#" onclick="showAppInfo('terms')">CGU</a>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -214,6 +214,14 @@
             </div>
         </div>
     </footer>
+
+    <!-- Modales d'information -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="script.js"></script>
