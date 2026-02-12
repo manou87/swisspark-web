@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwissPark - Places de Parking en Suisse</title>
+    <title>SwissPark - Le futur du parking en Suisse</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary: #4ade80;
+            --secondary: #3b82f6;
             --dark: #0a0a0a;
             --gray: #1a1a1a;
+            --light-gray: #2d2d2d;
             --text: #ffffff;
             --text-muted: #9ca3af;
+            --accent: #f59e0b;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -40,9 +43,10 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 1.5rem;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--primary);
             text-decoration: none;
+            letter-spacing: -1px;
         }
         .nav-actions { display: flex; gap: 1rem; align-items: center; }
         .btn {
@@ -50,57 +54,71 @@
             border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .btn-primary { background: var(--primary); color: var(--dark); }
-        .btn-outline { background: transparent; color: var(--text); border: 2px solid var(--primary); }
-        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
-        .hero { padding: 4rem 2rem; text-align: center; max-width: 1200px; margin: 0 auto; }
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(to right, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-outline { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: var(--primary); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        
+        .dashboard { padding: 2rem; display: grid; grid-template-columns: 1fr 350px; gap: 2rem; }
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
+
+        #map { height: 600px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
+        
+        .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+        .card {
+            background: var(--gray);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .hero p { font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2rem; }
-        #map { height: 500px; border-radius: 16px; margin: 2rem; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .active-session {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f172a 100%);
+            border-left: 4px solid var(--primary);
+        }
+        .timer { font-size: 2.5rem; font-weight: 700; color: var(--primary); margin: 1rem 0; font-variant-numeric: tabular-nums; }
+        
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center;
+            backdrop-filter: blur(8px);
         }
         .modal-content {
-            background: var(--gray);
-            padding: 2.5rem;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 450px;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
+            background: #121212; padding: 2.5rem; border-radius: 28px; width: 95%; max-width: 450px;
+            border: 1px solid rgba(255,255,255,0.1); position: relative;
         }
-        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer; font-size: 1.5rem; color: var(--text-muted); }
-        form { display: flex; flex-direction: column; gap: 1.25rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        label { font-size: 0.9rem; color: var(--text-muted); }
-        input {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 0.8rem;
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer; color: var(--text-muted); font-size: 1.5rem; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+        input, select {
+            width: 100%; background: #1a1a1a; border: 1px solid #333; padding: 0.85rem 1rem;
+            border-radius: 12px; color: white; font-size: 1rem; transition: border-color 0.3s;
         }
-        #recaptcha-container { margin: 10px 0; }
+        input:focus { outline: none; border-color: var(--primary); }
+        
+        .twint-btn {
+            background: #000; color: #fff; border: 2px solid #5e5e5e; padding: 1rem; width: 100%;
+            border-radius: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            cursor: pointer; margin-top: 1rem;
+        }
+        .twint-logo { height: 20px; }
+        
+        .vehicle-tag {
+            background: #f0f0f0; color: #333; padding: 0.25rem 0.5rem; border-radius: 4px;
+            font-weight: 800; font-family: monospace; border: 1px solid #ccc;
+        }
+        
         .hidden { display: none; }
+        .badge { padding: 0.25rem 0.6rem; border-radius: 99px; font-size: 0.75rem; font-weight: 700; }
+        .badge-live { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
     </style>
 </head>
 <body>
@@ -111,49 +129,93 @@
         </div>
     </nav>
 
-    <section class="hero">
-        <h1>Garez-vous en toute simplicité en Suisse</h1>
-        <p>Trouvez et réservez votre place de parking instantanément avec SwissPark.</p>
-        <div class="hero-btns">
-            <button class="btn btn-primary" onclick="openModal('add-parking-modal')">Proposer une place</button>
-            <button class="btn btn-outline" onclick="scrollToMap()">Voir la carte</button>
+    <div class="dashboard">
+        <div id="map"></div>
+        
+        <div class="sidebar">
+            <!-- Active Session Card -->
+            <div id="session-card" class="card active-session hidden">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="badge badge-live">EN COURS</span>
+                    <span id="session-location" style="font-weight:600">Zurich HB</span>
+                </div>
+                <div class="timer" id="parking-timer">00:00:00</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem">
+                    <span class="text-muted">Prix actuel:</span>
+                    <span id="current-price" style="font-weight:700">0.00 CHF</span>
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="stopParking()">Arrêter et Payer</button>
+            </div>
+
+            <!-- Vehicle Selection Card -->
+            <div class="card">
+                <h3><i class="fas fa-car"></i> Mes Véhicules</h3>
+                <div id="vehicle-list" style="margin:1rem 0">
+                    <p class="text-muted" style="font-size:0.9rem">Aucun véhicule enregistré.</p>
+                </div>
+                <button class="btn btn-outline" style="width:100%; font-size:0.85rem" onclick="openModal('vehicle-modal')">
+                    <i class="fas fa-plus"></i> Ajouter un véhicule
+                </button>
+            </div>
+
+            <!-- Promotion Card -->
+            <div class="card" style="background: rgba(74, 222, 128, 0.05); border-color: var(--primary);">
+                <p style="font-size:0.9rem">Réalisez des économies avec l'abonnement <b>SwissPark Pro</b>.</p>
+            </div>
         </div>
-    </section>
+    </div>
 
-    <div id="map"></div>
-
+    <!-- Modals -->
     <div id="auth-modal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('auth-modal')">&times;</span>
-            <h2>Connexion / Inscription</h2>
+            <h2 style="margin-bottom:1rem">Connexion</h2>
             <form id="phone-form">
                 <div class="form-group">
-                    <label>Numéro de téléphone (+41...)</label>
-                    <input type="tel" id="phone-number" placeholder="+41781234567" required>
+                    <label>Numéro de téléphone</label>
+                    <input type="tel" id="phone-number" placeholder="+41 79 000 00 00" required>
                 </div>
                 <div id="recaptcha-container"></div>
-                <button type="submit" class="btn btn-primary">Envoyer le code</button>
+                <button type="submit" class="btn btn-primary" style="width:100%">Recevoir le code</button>
             </form>
             <form id="verification-form" class="hidden">
                 <div class="form-group">
                     <label>Code de vérification (6 chiffres)</label>
                     <input type="text" id="verification-code" placeholder="123456" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Vérifier le code</button>
+                <button type="submit" class="btn btn-primary" style="width:100%">Valider</button>
             </form>
-            <p id="auth-status" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary);"></p>
+            <p id="auth-status" style="margin-top:1rem; font-size:0.9rem; color:var(--primary)"></p>
         </div>
     </div>
 
-    <div id="add-parking-modal" class="modal">
+    <div id="vehicle-modal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('add-parking-modal')">&times;</span>
-            <h2>Proposer une place</h2>
-            <form onsubmit="event.preventDefault(); alert('Place ajoutée !'); closeModal('add-parking-modal')">
-                <input type="text" placeholder="Adresse" required>
-                <input type="number" placeholder="Prix par heure (CHF)" required>
-                <button type="submit" class="btn btn-primary">Publier</button>
+            <span class="modal-close" onclick="closeModal('vehicle-modal')">&times;</span>
+            <h2>Nouveau Véhicule</h2>
+            <form id="vehicle-form" onsubmit="addVehicle(event)">
+                <div class="form-group">
+                    <label>Plaque d'immatriculation</label>
+                    <input type="text" id="plate-number" placeholder="GE 123 456" required>
+                </div>
+                <div class="form-group">
+                    <label>Nom du véhicule (ex: Ma Tesla)</label>
+                    <input type="text" id="vehicle-name" placeholder="Voiture principale">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%">Enregistrer</button>
             </form>
+        </div>
+    </div>
+
+    <div id="twint-modal" class="modal">
+        <div class="modal-content" style="text-align:center">
+            <h2 style="color:#ef4444">TWINT</h2>
+            <p style="margin:1rem 0">Paiement instantané de <span id="payment-amount" style="font-weight:700"></span></p>
+            <div style="background:white; padding:1rem; border-radius:15px; display:inline-block; margin:1rem 0">
+                <i class="fas fa-qrcode" style="font-size:10rem; color:black"></i>
+            </div>
+            <p class="text-muted">Ouvrez l'app TWINT et scannez le code QR</p>
+            <button class="btn btn-outline" style="margin-top:1.5rem" onclick="completePayment()">Simuler succès paiement</button>
         </div>
     </div>
 
@@ -162,78 +224,156 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyB3uDEtxEcwxuRRqItU1G-sn5cAWse-gpc",
             authDomain: "swisspark-e4c0a.firebaseapp.com",
             projectId: "swisspark-e4c0a",
             storageBucket: "swisspark-e4c0a.firebasestorage.app",
             messagingSenderId: "852079002086",
-            appId: "1:852079002086:web:e4de222417deff1aabd627",
-            measurementId: "G-XZCQQ83JZP"
+            appId: "1:852079002086:web:e4de222417deff1aabd627"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         auth.languageCode = 'fr';
 
+        // State Management
+        let vehicles = JSON.parse(localStorage.getItem('sp_vehicles')) || [];
+        let activeSession = null;
+        let timerInterval = null;
+        let startTime = null;
         let confirmationResult;
 
+        // UI Helpers
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function scrollToMap() { document.getElementById('map').scrollIntoView({ behavior: 'smooth' }); }
 
-        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-            'size': 'normal'
-        });
-
+        // Auth Logic
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+        
         document.getElementById('phone-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const phoneNumber = document.getElementById('phone-number').value;
-            const appVerifier = window.recaptchaVerifier;
-
-            auth.signInWithPhoneNumber(phoneNumber, appVerifier)
-                .then((result) => {
-                    confirmationResult = result;
-                    document.getElementById('phone-form').classList.add('hidden');
-                    document.getElementById('verification-form').classList.remove('hidden');
-                    document.getElementById('auth-status').innerText = "Code envoyé !";
-                }).catch((error) => {
-                    document.getElementById('auth-status').innerText = "Erreur: " + error.message;
-                });
+            const phone = document.getElementById('phone-number').value;
+            auth.signInWithPhoneNumber(phone, window.recaptchaVerifier).then(result => {
+                confirmationResult = result;
+                document.getElementById('phone-form').classList.add('hidden');
+                document.getElementById('verification-form').classList.remove('hidden');
+                document.getElementById('auth-status').innerText = "Code envoyé !";
+            }).catch(err => alert(err.message));
         });
 
         document.getElementById('verification-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const code = document.getElementById('verification-code').value;
-            confirmationResult.confirm(code).then((result) => {
-                document.getElementById('auth-status').innerText = "Connecté !";
-                setTimeout(() => closeModal('auth-modal'), 1500);
-            }).catch((error) => {
-                document.getElementById('auth-status').innerText = "Code invalide.";
-            });
+            confirmationResult.confirm(code).then(() => {
+                closeModal('auth-modal');
+                location.reload();
+            }).catch(() => alert("Code incorrect"));
         });
 
-        auth.onAuthStateChanged((user) => {
-            const navActions = document.getElementById('nav-actions');
-            if (user) {
-                navActions.innerHTML = '<span style=\"margin-right:15px\">' + (user.phoneNumber || 'User') + '</span><button class=\"btn btn-outline\" onclick=\"firebase.auth().signOut()\">Déconnexion</button>';
-            } else {
-                navActions.innerHTML = '<button class=\"btn btn-outline\" onclick=\"openModal(\'auth-modal\')\">Connexion</button>';
+        auth.onAuthStateChanged(user => {
+            const actions = document.getElementById('nav-actions');
+            if(user) {
+                actions.innerHTML = `
+                    <span style="font-size:0.9rem; font-weight:600">${user.phoneNumber}</span>
+                    <button class="btn btn-outline" onclick="auth.signOut().then(()=>location.reload())">Déconnexion</button>
+                `;
+                updateVehicleUI();
             }
         });
 
-        const map = L.map('map').setView([46.8182, 8.2275], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        // Vehicle Logic
+        function addVehicle(e) {
+            e.preventDefault();
+            const plate = document.getElementById('plate-number').value.toUpperCase();
+            const name = document.getElementById('vehicle-name').value || plate;
+            vehicles.push({ plate, name });
+            localStorage.setItem('sp_vehicles', JSON.stringify(vehicles));
+            updateVehicleUI();
+            closeModal('vehicle-modal');
+        }
 
-        const spots = [
-            { name: "Zurich HB", pos: [47.3781, 8.5401] },
-            { name: "Genève Centre", pos: [46.2044, 6.1432] },
-            { name: "Lausanne Gare", pos: [46.5168, 6.6291] }
+        function updateVehicleUI() {
+            const list = document.getElementById('vehicle-list');
+            if(vehicles.length === 0) {
+                list.innerHTML = '<p class="text-muted" style="font-size:0.9rem">Aucun véhicule enregistré.</p>';
+                return;
+            }
+            list.innerHTML = vehicles.map(v => `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem; padding:0.5rem; background:rgba(255,255,255,0.03); border-radius:10px">
+                    <div>
+                        <div style="font-size:0.8rem; color:var(--text-muted)">${v.name}</div>
+                        <span class="vehicle-tag">${v.plate}</span>
+                    </div>
+                    <i class="fas fa-check-circle" style="color:var(--primary)"></i>
+                </div>
+            `).join('');
+        }
+
+        // Map & Parking Logic
+        const map = L.map('map').setView([46.8182, 8.2275], 8);
+        L.tileLayer('https://{s}.tile.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+        const parkingSpots = [
+            { id: 1, name: "Zurich Centre", pos: [47.3769, 8.5417], price: 4.50 },
+            { id: 2, name: "Genève Gare", pos: [46.2100, 6.1430], price: 3.80 },
+            { id: 3, name: "Lausanne Riponne", pos: [46.5238, 6.6327], price: 3.20 },
+            { id: 4, name: "Bern Bundesplatz", pos: [46.9472, 7.4442], price: 4.00 }
         ];
 
-        spots.forEach(spot => {
-            L.marker(spot.pos).addTo(map).bindPopup('<b>' + spot.name + '</b><br><button class=\"btn btn-primary\" style=\"padding:5px 10px;margin-top:5px\" onclick=\"alert(\'Réservation...\')\">Réserver</button>');
+        parkingSpots.forEach(spot => {
+            const marker = L.marker(spot.pos).addTo(map);
+            marker.bindPopup(`
+                <div style="color:black; padding:5px">
+                    <h3 style="margin-bottom:5px">${spot.name}</h3>
+                    <p style="margin-bottom:10px"><b>${spot.price.toFixed(2)} CHF</b> / heure</p>
+                    <button class="btn btn-primary" onclick="startParking('${spot.name}', ${spot.price})">Démarrer ici</button>
+                </div>
+            `);
         });
+
+        function startParking(name, price) {
+            if(!auth.currentUser) return openModal('auth-modal');
+            if(vehicles.length === 0) return openModal('vehicle-modal');
+            
+            activeSession = { name, price };
+            startTime = new Date();
+            document.getElementById('session-location').innerText = name;
+            document.getElementById('session-card').classList.remove('hidden');
+            map.closePopup();
+            
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const now = new Date();
+            const diff = Math.floor((now - startTime) / 1000);
+            const h = Math.floor(diff / 3600).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+            const s = (diff % 60).toString().padStart(2, '0');
+            
+            document.getElementById('parking-timer').innerText = `${h}:${m}:${s}`;
+            
+            const cost = (diff / 3600) * activeSession.price;
+            document.getElementById('current-price').innerText = `${Math.max(0.10, cost).toFixed(2)} CHF`;
+        }
+
+        function stopParking() {
+            const finalAmount = document.getElementById('current-price').innerText;
+            document.getElementById('payment-amount').innerText = finalAmount;
+            openModal('twint-modal');
+        }
+
+        function completePayment() {
+            clearInterval(timerInterval);
+            document.getElementById('session-card').classList.add('hidden');
+            closeModal('twint-modal');
+            alert("Paiement réussi avec TWINT ! Votre session est terminée.");
+            activeSession = null;
+        }
+
+        // Init
+        updateVehicleUI();
     </script>
 </body>
 </html>
