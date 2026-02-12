@@ -148,9 +148,9 @@
         function initMap() {
             map = L.map('map', { zoomControl: false }).setView([46.5197, 6.6323], 13);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-            const spots = [{ id: 1, pos: [46.521, 6.634], title: "Quartier St-François", type: "Extérieur", covered: false }, { id: 2, pos: [46.518, 6.630], title: "Gare de Lausanne", type: "Couvert", covered: true }];
+            const spots = [{ id: 1, pos: [46.521, 6.634], title: \"Quartier St-François\", type: \"Extérieur\", covered: false }, { id: 2, pos: [46.518, 6.630], title: \"Gare de Lausanne\", type: \"Couvert\", covered: true }];
             spots.forEach(s => {
-                const marker = L.divIcon({ className: 'custom-marker', html: `<div class="price-tag">${s.covered ? '6.-' : '3.-'}</div>` });
+                const marker = L.divIcon({ className: 'custom-marker', html: `<div class=\"price-tag\">${s.covered ? '6.-' : '3.-'}</div>` });
                 L.marker(s.pos, { icon: marker }).addTo(map).on('click', () => openBooking(s));
             });
         }
@@ -172,12 +172,16 @@
         }
         function updateTotal() {
             duration = parseInt(document.getElementById('duration-slider').value);
-            let base = 3; let unit = "Heure";
-            if (pricingType === 'day') { base = 15; unit = "Jour"; }
-            if (pricingType === 'week') { base = 80; unit = "Semaine"; }
-            if (pricingType === 'month') { base = 250; unit = "Mois"; }
+            let base = 3; let unit = \"Heure\";
+            if (pricingType === 'day') { base = 15; unit = \"Jour\"; }
+            if (pricingType === 'week') { base = 80; unit = \"Semaine\"; }
+            if (pricingType === 'month') { base = 250; unit = \"Mois\"; }
             if (selectedSpot && selectedSpot.covered) base *= 2;
-            if (duration > 1) unit += (pricingType === 'month' ? "" : "s");
+            if (duration > 1) {
+                if (pricingType === 'hr') unit = \"Heures\";
+                else if (pricingType === 'day') unit = \"Jours\";
+                else if (pricingType === 'week') unit = \"Semaines\";
+            }
             document.getElementById('current-duration').innerText = `${duration} ${unit}`;
             document.getElementById('final-total').innerText = `${(base * duration).toFixed(2)} CHF`;
         }
@@ -185,13 +189,13 @@
         document.getElementById('vehicle-form').onsubmit = (e) => {
             e.preventDefault(); const p = document.getElementById('veh-plate').value;
             if (!p) return; vehicle = { plate: p }; localStorage.setItem('sp_vehicle', JSON.stringify(vehicle));
-            updateVehicleLabel(); toggleVehicleLabel(); toggleVehicleModal(false);
+            updateVehicleLabel(); toggleVehicleModal(false);
         };
         function updateVehicleLabel() { document.getElementById('active-vehicle-label').innerText = vehicle.plate; }
         function processPayment() {
-            if (!vehicle) { alert("Ajoutez un véhicule."); toggleVehicleModal(true); return; }
-            alert("Simulation TWINT...");
-            setTimeout(() => { alert("✅ Payé !"); document.getElementById('booking-sheet').classList.remove('active'); }, 1000);
+            if (!vehicle) { alert(\"Ajoutez un véhicule.\"); toggleVehicleModal(true); return; }
+            alert(\"Simulation TWINT...\");
+            setTimeout(() => { alert(\"✅ Payé !\"); document.getElementById('booking-sheet').classList.remove('active'); }, 1000);
         }
     </script>
 </body>
