@@ -6,155 +6,234 @@
     <title>SwissPark - Places de Parking en Suisse</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #4ade80; --dark: #0a0a0a; --gray: #1a1a1a; --text: #ffffff; --text-muted: #9ca3af; }
+        :root {
+            --primary: #4ade80;
+            --dark: #0a0a0a;
+            --gray: #1a1a1a;
+            --text: #ffffff;
+            --text-muted: #9ca3af;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); line-height: 1.6; overflow-x: hidden; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .logo { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: var(--primary); text-decoration: none; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
         .nav-actions { display: flex; gap: 1rem; align-items: center; }
-        .btn { padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; text-decoration: none; display: inline-block; }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
         .btn-primary { background: var(--primary); color: var(--dark); }
         .btn-outline { background: transparent; color: var(--text); border: 2px solid var(--primary); }
         .btn:hover { transform: translateY(-2px); opacity: 0.9; }
-        
         .hero { padding: 4rem 2rem; text-align: center; max-width: 1200px; margin: 0 auto; }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .hero p { font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2rem; }
-        
         #map { height: 500px; border-radius: 16px; margin: 2rem; border: 1px solid rgba(255, 255, 255, 0.1); }
-        
-        /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--gray); padding: 2.5rem; border-radius: 24px; width: 90%; max-width: 450px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--gray);
+            padding: 2.5rem;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
         .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer; font-size: 1.5rem; color: var(--text-muted); }
-        .modal h2 { margin-bottom: 1.5rem; color: var(--primary); }
-        
         form { display: flex; flex-direction: column; gap: 1.25rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; text-align: left; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
         label { font-size: 0.9rem; color: var(--text-muted); }
-        input, select, textarea { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem; border-radius: 10px; color: white; font-size: 1rem; width: 100%; }
-        input:focus { border-color: var(--primary); outline: none; }
-        
-        .success-msg { color: var(--primary); font-weight: bold; text-align: center; display: none; padding: 1rem; border: 1px solid var(--primary); border-radius: 10px; margin-top: 1rem; }
-
-        @media (max-width: 768px) { .hero h1 { font-size: 2.2rem; } .navbar { padding: 1rem; } .nav-actions .btn { padding: 0.5rem 1rem; font-size: 0.8rem; } }
+        input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.8rem;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+        }
+        #recaptcha-container { margin: 10px 0; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <a href="#" class="logo">🅿️ SwissPark</a>
-        <div class="nav-actions">
-            <button class="btn btn-outline" onclick="openModal('loginModal')">Connexion</button>
-            <button class="btn btn-primary" onclick="openModal('addParkingModal')">Ajouter une place</button>
+        <a href="#" class="logo"><i class="fas fa-parking"></i> SwissPark</a>
+        <div class="nav-actions" id="nav-actions">
+            <button class="btn btn-outline" onclick="openModal('auth-modal')">Connexion</button>
         </div>
     </nav>
 
     <section class="hero">
-        <h1>Parking intelligent en Suisse</h1>
-        <p>Rejoignez SwissPark. Connectez-vous avec votre e-mail <b>ou</b> téléphone.</p>
-        <div id="userWelcome" style="display:none; color: var(--primary); margin-bottom: 2rem; font-weight: 600;"></div>
+        <h1>Garez-vous en toute simplicité en Suisse</h1>
+        <p>Trouvez et réservez votre place de parking instantanément avec SwissPark.</p>
+        <div class="hero-btns">
+            <button class="btn btn-primary" onclick="openModal('add-parking-modal')">Proposer une place</button>
+            <button class="btn btn-outline" onclick="scrollToMap()">Voir la carte</button>
+        </div>
     </section>
 
     <div id="map"></div>
 
-    <!-- Modal Connexion -->
-    <div id="loginModal" class="modal">
+    <div id="auth-modal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('loginModal')">&times;</span>
-            <h2>Connexion</h2>
-            <form id="loginForm" onsubmit="handleLogin(event)">
+            <span class="modal-close" onclick="closeModal('auth-modal')">&times;</span>
+            <h2>Connexion / Inscription</h2>
+            <form id="phone-form">
                 <div class="form-group">
-                    <label>E-mail ou Numéro de téléphone</label>
-                    <input type="text" id="loginIdentifier" placeholder="votre@email.com ou +41..." required>
+                    <label>Numéro de téléphone (+41...)</label>
+                    <input type="tel" id="phone-number" placeholder="+41781234567" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Se connecter</button>
+                <div id="recaptcha-container"></div>
+                <button type="submit" class="btn btn-primary">Envoyer le code</button>
             </form>
-            <div id="loginSuccess" class="success-msg">Connexion réussie !</div>
+            <form id="verification-form" class="hidden">
+                <div class="form-group">
+                    <label>Code de vérification (6 chiffres)</label>
+                    <input type="text" id="verification-code" placeholder="123456" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Vérifier le code</button>
+            </form>
+            <p id="auth-status" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary);"></p>
         </div>
     </div>
 
-    <!-- Modal Ajouter une place -->
-    <div id="addParkingModal" class="modal">
+    <div id="add-parking-modal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('addParkingModal')">&times;</span>
-            <h2>Proposer ma place</h2>
-            <form id="addParkingForm" onsubmit="handleAddParking(event)">
-                <div class="form-group">
-                    <label>Adresse exacte</label>
-                    <input type="text" placeholder="Rue du Tunnel 1, Lausanne" required>
-                </div>
-                <div class="form-group">
-                    <label>Prix par jour (CHF)</label>
-                    <input type="number" value="5" min="1" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Publier la place</button>
+            <span class="modal-close" onclick="closeModal('add-parking-modal')">&times;</span>
+            <h2>Proposer une place</h2>
+            <form onsubmit="event.preventDefault(); alert('Place ajoutée !'); closeModal('add-parking-modal')">
+                <input type="text" placeholder="Adresse" required>
+                <input type="number" placeholder="Prix par heure (CHF)" required>
+                <button type="submit" class="btn btn-primary">Publier</button>
             </form>
-            <div id="parkSuccess" class="success-msg">Place ajoutée avec succès !</div>
-        </div>
-    </div>
-
-    <!-- Modal Réservation -->
-    <div id="reserveModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('reserveModal')">&times;</span>
-            <h2 id="reserveTitle">Réserver une place</h2>
-            <p id="reserveInfo" style="margin-bottom: 1rem; color: var(--text-muted);"></p>
-            <form onsubmit="handleReservation(event)">
-                <div class="form-group">
-                    <label>Date de réservation</label>
-                    <input type="date" required>
-                </div>
-                <button type="button" class="btn btn-outline" style="width: 100%; border-color: #00D5FF; color: #00D5FF;">Payer avec TWINT 🇨🇭</button>
-                <button type="submit" class="btn btn-primary">Confirmer la réservation</button>
-            </form>
-            <div id="reserveSuccess" class="success-msg">Réservation confirmée !</div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
     <script>
-        const map = L.map('map').setView([46.8182, 8.2275], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3uDEtxEcwxuRRqItU1G-sn5cAWse-gpc",
+            authDomain: "swisspark-e4c0a.firebaseapp.com",
+            projectId: "swisspark-e4c0a",
+            storageBucket: "swisspark-e4c0a.firebasestorage.app",
+            messagingSenderId: "852079002086",
+            appId: "1:852079002086:web:e4de222417deff1aabd627",
+            measurementId: "G-XZCQQ83JZP"
+        };
 
-        const parkingIcon = L.divIcon({
-            html: '<div style="background: #4ade80; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🅿️</div>',
-            className: 'custom-icon', iconSize: [30, 30], iconAnchor: [15, 15]
-        });
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        auth.languageCode = 'fr';
 
-        const parkingSpots = [
-            { coords: [46.2044, 6.1432], name: "Genève Centre", price: 5 },
-            { coords: [46.5197, 6.6323], name: "Lausanne Gare", price: 4 },
-            { coords: [47.3769, 8.5417], name: "Zürich HB", price: 6 },
-            { coords: [46.9480, 7.4474], name: "Berne Centre", price: 4 }
-        ];
-
-        parkingSpots.forEach(spot => {
-            L.marker(spot.coords, { icon: parkingIcon }).addTo(map)
-            .on('click', () => {
-                document.getElementById('reserveTitle').innerText = "Réserver: " + spot.name;
-                document.getElementById('reserveInfo').innerText = "Prix: " + spot.price + " CHF/jour";
-                openModal('reserveModal');
-            });
-        });
+        let confirmationResult;
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function scrollToMap() { document.getElementById('map').scrollIntoView({ behavior: 'smooth' }); }
 
-        function handleLogin(e) {
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            'size': 'normal'
+        });
+
+        document.getElementById('phone-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const identifier = document.getElementById('loginIdentifier').value;
-            if(!identifier) return;
-            document.getElementById('loginSuccess').style.display = 'block';
-            setTimeout(() => {
-                closeModal('loginModal');
-                document.getElementById('userWelcome').innerText = "Bienvenue, " + identifier;
-                document.getElementById('userWelcome').style.display = 'block';
-            }, 1500);
-        }
+            const phoneNumber = document.getElementById('phone-number').value;
+            const appVerifier = window.recaptchaVerifier;
 
-        function handleAddParking(e) { e.preventDefault(); document.getElementById('parkSuccess').style.display = 'block'; setTimeout(() => closeModal('addParkingModal'), 1500); }
-        function handleReservation(e) { e.preventDefault(); document.getElementById('reserveSuccess').style.display = 'block'; setTimeout(() => closeModal('reserveModal'), 1500); }
+            auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+                .then((result) => {
+                    confirmationResult = result;
+                    document.getElementById('phone-form').classList.add('hidden');
+                    document.getElementById('verification-form').classList.remove('hidden');
+                    document.getElementById('auth-status').innerText = "Code envoyé !";
+                }).catch((error) => {
+                    document.getElementById('auth-status').innerText = "Erreur: " + error.message;
+                });
+        });
+
+        document.getElementById('verification-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('verification-code').value;
+            confirmationResult.confirm(code).then((result) => {
+                document.getElementById('auth-status').innerText = "Connecté !";
+                setTimeout(() => closeModal('auth-modal'), 1500);
+            }).catch((error) => {
+                document.getElementById('auth-status').innerText = "Code invalide.";
+            });
+        });
+
+        auth.onAuthStateChanged((user) => {
+            const navActions = document.getElementById('nav-actions');
+            if (user) {
+                navActions.innerHTML = '<span style=\"margin-right:15px\">' + (user.phoneNumber || 'User') + '</span><button class=\"btn btn-outline\" onclick=\"firebase.auth().signOut()\">Déconnexion</button>';
+            } else {
+                navActions.innerHTML = '<button class=\"btn btn-outline\" onclick=\"openModal(\'auth-modal\')\">Connexion</button>';
+            }
+        });
+
+        const map = L.map('map').setView([46.8182, 8.2275], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        const spots = [
+            { name: "Zurich HB", pos: [47.3781, 8.5401] },
+            { name: "Genève Centre", pos: [46.2044, 6.1432] },
+            { name: "Lausanne Gare", pos: [46.5168, 6.6291] }
+        ];
+
+        spots.forEach(spot => {
+            L.marker(spot.pos).addTo(map).bindPopup('<b>' + spot.name + '</b><br><button class=\"btn btn-primary\" style=\"padding:5px 10px;margin-top:5px\" onclick=\"alert(\'Réservation...\')\">Réserver</button>');
+        });
     </script>
 </body>
 </html>
