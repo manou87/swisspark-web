@@ -7,223 +7,355 @@
     <meta name="description" content="Trouvez des places de parking en Suisse pour 3-6 CHF par jour. Application mobile et web pour gérer vos places de parking.">
     <meta name="keywords" content="parking, suisse, places, location, 3-6 CHF, application">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://suissepark.ch/">
-    <meta property="og:title" content="SwissPark - Places de Parking en Suisse">
-    <meta property="og:description" content="Trouvez des places de parking en Suisse pour 3-6 CHF par jour">
-    <meta property="og:image" content="https://suissepark.ch/og-image.jpg">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://suissepark.ch/">
-    <meta property="twitter:title" content="SwissPark - Places de Parking en Suisse">
-    <meta property="twitter:description" content="Trouvez des places de parking en Suisse pour 3-6 CHF par jour">
-    <meta property="twitter:image" content="https://suissepark.ch/og-image.jpg">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon.png">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="/assets/icons/icon-152x152.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SwissPark">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4ade80;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #4ade80;
+        }
+        
+        .cta-button {
+            background: #4ade80;
+            color: #0a0a0a;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .cta-button:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+        
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            color: #9ca3af;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .primary-btn {
+            background: #4ade80;
+            color: #0a0a0a;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .secondary-btn {
+            background: transparent;
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 2px solid #4ade80;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .secondary-btn:hover {
+            background: #4ade80;
+            color: #0a0a0a;
+        }
+        
+        .map-section {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        #map {
+            height: 500px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #4ade80;
+        }
+        
+        .feature-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            color: #4ade80;
+            margin-bottom: 0.5rem;
+        }
+        
+        footer {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <span class="logo-icon">🅿️</span>
-                <span class="logo-text">SwissPark</span>
-            </div>
-            <div class="nav-menu">
-                <a href="#home" class="nav-link">Accueil</a>
-                <a href="#features" class="nav-link">Fonctionnalités</a>
-                <a href="#pricing" class="nav-link">Tarifs</a>
-                <a href="#contact" class="nav-link">Contact</a>
-                <a href="#" class="nav-link download-btn" onclick="showAppInfo('download')">Télécharger l'App</a>
-            </div>
-            <div class="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
+        <div class="logo">🅿️ SwissPark</div>
+        <ul class="nav-links">
+            <li><a href="#home">Accueil</a></li>
+            <li><a href="#map">Carte</a></li>
+            <li><a href="#features">Fonctionnalités</a></li>
+        </ul>
+        <a href="#" class="cta-button">Télécharger l'App</a>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    Trouvez votre place de parking en Suisse
-                </h1>
-                <p class="hero-description">
-                    Places de parking disponibles pour 3-6 CHF par jour. 
-                    Gagnez de l'argent en louant votre place ou trouvez une place rapidement.
-                </p>
-                <div class="hero-buttons">
-                    <button class="btn btn-primary" onclick="showAppInfo('earn')">Commencer à gagner</button>
-                    <button class="btn btn-secondary" onclick="showAppInfo('find')">Trouver une place</button>
-                </div>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <span class="stat-number">500+</span>
-                        <span class="stat-label">Places disponibles</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">4.8⭐</span>
-                        <span class="stat-label">Note utilisateurs</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">3-6 CHF</span>
-                        <span class="stat-label">Prix par jour</span>
-                    </div>
-                </div>
+    <section class="hero" id="home">
+        <h1>Trouvez votre place de parking en Suisse</h1>
+        <p>Places de parking disponibles pour 3-6 CHF par jour. Gagnez de l'argent en louant votre place ou trouvez une place rapidement.</p>
+        <div class="button-group">
+            <button class="primary-btn" onclick="scrollToMap()">Voir la carte</button>
+            <a href="#features" class="secondary-btn">En savoir plus</a>
+        </div>
+    </section>
+
+    <section class="map-section" id="map">
+        <div id="map"></div>
+    </section>
+
+    <section class="features" id="features">
+        <h2>Pourquoi choisir SwissPark ?</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon">💰</div>
+                <h3>Gagnez de l'argent</h3>
+                <p>Louez votre place de parking inutilisée et générez des revenus passifs</p>
             </div>
-            <div class="hero-visual">
-                <div class="map-preview">
-                    <div class="map-placeholder">
-                        <span class="map-icon">🗺️</span>
-                        <h3>Carte Interactive</h3>
-                        <p>Visualisez toutes les places disponibles</p>
-                    </div>
-                </div>
+            <div class="feature-card">
+                <div class="icon">🔍</div>
+                <h3>Trouvez rapidement</h3>
+                <p>Localisez des places disponibles en temps réel avec notre carte interactive</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📱</div>
+                <h3>Application mobile</h3>
+                <p>Gérez vos places depuis votre smartphone, partout en Suisse</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h3>Sécurisé</h3>
+                <p>Paiements sécurisés et contrats transparents pour votre tranquillité</p>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section id="features" class="features">
-        <div class="container">
-            <h2 class="section-title">Pourquoi choisir SwissPark ?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">💰</div>
-                    <h3>Gagnez de l'argent</h3>
-                    <p>Louez votre place de parking inutilisée et générez des revenus passifs</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
-                    <h3>Trouvez rapidement</h3>
-                    <p>Localisez des places disponibles en temps réel avec notre carte interactive</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📱</div>
-                    <h3>Application mobile</h3>
-                    <p>Gérez vos places depuis votre smartphone, partout en Suisse</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🛡️</div>
-                    <h3>Sécurisé</h3>
-                    <p>Paiements sécurisés et contrats transparents pour votre tranquillité</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing">
-        <div class="container">
-            <h2 class="section-title">Tarifs transparents</h2>
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <h3>Location de place</h3>
-                    <div class="price">3-6 CHF<span>/jour</span></div>
-                    <ul class="pricing-features">
-                        <li>✓ Prix fixe et transparent</li>
-                        <li>✓ Paiement sécurisé</li>
-                        <li>✓ Support client 24/7</li>
-                        <li>✓ Assurance incluse</li>
-                    </ul>
-                    <button class="btn btn-outline" onclick="showAppInfo('rent')">Louer maintenant</button>
-                </div>
-                <div class="pricing-card featured">
-                    <div class="featured-badge">Populaire</div>
-                    <h3>Propriétaire de place</h3>
-                    <div class="price">Gratuit<span></span></div>
-                    <ul class="pricing-features">
-                        <li>✓ Aucun frais d'inscription</li>
-                        <li>✓ 90% des revenus pour vous</li>
-                        <li>✓ Gestion simplifiée</li>
-                        <li>✓ Paiements automatiques</li>
-                    </ul>
-                    <button class="btn btn-primary" onclick="showAppInfo('owner')">Commencer</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta">
-        <div class="container">
-            <h2>Prêt à rejoindre SwissPark ?</h2>
-            <p>Téléchargez l'application et commencez dès aujourd'hui</p>
-            <div class="cta-buttons">
-                <button class="btn btn-primary" onclick="showAppInfo('download')">Télécharger l'App</button>
-                <button class="btn btn-secondary" onclick="showAppInfo('learn')">En savoir plus</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="footer-logo">
-                        <span class="logo-icon">🅿️</span>
-                        <span class="logo-text">SwissPark</span>
-                    </div>
-                    <p>La solution de parking intelligente en Suisse</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Produit</h4>
-                    <a href="#features">Fonctionnalités</a>
-                    <a href="#pricing">Tarifs</a>
-                    <a href="#" onclick="showAppInfo('download')">Télécharger</a>
-                </div>
-                <div class="footer-section">
-                    <h4>Support</h4>
-                    <a href="#contact">Contact</a>
-                    <a href="#" onclick="showAppInfo('help')">Aide</a>
-                    <a href="#" onclick="showAppInfo('faq')">FAQ</a>
-                </div>
-                <div class="footer-section">
-                    <h4>Légal</h4>
-                    <a href="#" onclick="showAppInfo('terms')">Conditions</a>
-                    <a href="#" onclick="showAppInfo('privacy')">Confidentialité</a>
-                    <a href="#" onclick="showAppInfo('terms')">CGU</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 SwissPark. Tous droits réservés.</p>
-            </div>
-        </div>
+    <footer>
+        <p>© 2024 SwissPark. Tous droits réservés.</p>
     </footer>
 
-    <!-- Modales d'information -->
-    <div id="infoModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modalContent"></div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="script.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize map centered on Switzerland
+        const map = L.map('map').setView([46.8182, 8.2275], 8);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Custom parking icon
+        const parkingIcon = L.divIcon({
+            html: '<div style="background: #4ade80; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🅿️</div>',
+            className: 'custom-parking-icon',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        
+        // Parking locations in Switzerland (major cities)
+        const parkingSpots = [
+            {
+                coords: [46.2044, 6.1432],
+                name: "Parking Centre Genève",
+                price: "5 CHF/jour",
+                available: 12
+            },
+            {
+                coords: [46.5197, 6.6323],
+                name: "Parking Gare Lausanne",
+                price: "4 CHF/jour",
+                available: 8
+            },
+            {
+                coords: [47.3769, 8.5417],
+                name: "Parking Zürich HB",
+                price: "6 CHF/jour",
+                available: 15
+            },
+            {
+                coords: [46.9480, 7.4474],
+                name: "Parking Berne Centre",
+                price: "4 CHF/jour",
+                available: 10
+            },
+            {
+                coords: [47.5596, 7.5886],
+                name: "Parking Basel Stadt",
+                price: "5 CHF/jour",
+                available: 7
+            },
+            {
+                coords: [46.0037, 8.9511],
+                name: "Parking Lugano",
+                price: "3 CHF/jour",
+                available: 20
+            },
+            {
+                coords: [46.1884, 6.1395],
+                name: "Parking Aéroport Genève",
+                price: "6 CHF/jour",
+                available: 5
+            },
+            {
+                coords: [47.4245, 9.3767],
+                name: "Parking St. Gallen",
+                price: "4 CHF/jour",
+                available: 9
+            }
+        ];
+        
+        // Add markers to map
+        parkingSpots.forEach(spot => {
+            const marker = L.marker(spot.coords, { icon: parkingIcon })
+                .addTo(map)
+                .bindPopup(`
+                    <div style="text-align: center; padding: 10px;">
+                        <h3 style="margin-bottom: 8px; color: #4ade80;">${spot.name}</h3>
+                        <p style="margin: 4px 0; font-weight: bold; font-size: 16px;">${spot.price}</p>
+                        <p style="margin: 4px 0; color: #666;">Places disponibles: ${spot.available}</p>
+                        <button style="margin-top: 10px; background: #4ade80; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600;" onclick="alert('Réservation en cours...')">Réserver</button>
+                    </div>
+                `);
+        });
+        
+        // Scroll to map function
+        function scrollToMap() {
+            document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>
