@@ -12,7 +12,15 @@
         :root { --sp-pink: #E6007E; --sp-dark: #2D2D2D; }
         body { font-family: 'Montserrat', sans-serif; background: #f8f9fa; overscroll-behavior: none; overflow: hidden; }
         #map { height: 100vh; width: 100%; z-index: 0; }
-        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(10px); 
+            border-radius: 20px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1); 
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
         .btn-pink { background: var(--sp-pink); color: white; font-weight: 800; transition: all 0.3s; border: none; cursor: pointer; }
         .btn-pink:active { transform: scale(0.95); }
         
@@ -24,14 +32,13 @@
         }
         .bottom-sheet.active { transform: translateY(0); }
         
-        /* Wheel Timer UI */
         .timer-container { position: relative; width: 260px; height: 260px; margin: 1.5rem auto; }
         .timer-wheel-svg { transform: rotate(-90deg); cursor: grab; }
-        .timer-wheel-svg:active { cursor: grabbing; }
         
         .nav-bar { 
             position: fixed; bottom: 0; left: 0; right: 0; height: 85px; 
-            background: white; border-top: 1px solid #f1f1f1; 
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(0,0,0,0.05); 
             display: flex; justify-content: space-around; align-items: center; z-index: 1001;
             padding-bottom: env(safe-area-inset-bottom);
         }
@@ -41,36 +48,51 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px); }
         .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 2rem; position: relative; }
         
-        .vehicle-tag { background: #1f2937; color: white; padding: 6px 14px; border-radius: 8px; font-family: 'Courier New', monospace; font-weight: 800; letter-spacing: 1.5px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border: 2px solid #374151; }
-        .twint-button { background: #000; color: #fff; padding: 1rem; border-radius: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; transition: 0.2s; }
-        .twint-button img { height: 24px; }
-        .twint-button:active { background: #333; }
-        
-        .parking-active-bg { background: linear-gradient(180deg, #E6007E 0%, #B30062 100%); color: white; }
-        
-        /* Floating Search */
         .search-container { position: fixed; top: 20px; left: 20px; right: 20px; z-index: 100; }
+        
+        .custom-marker { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .custom-marker:hover { transform: scale(1.2); z-index: 1000 !important; }
+
+        .parking-active-bg { background: linear-gradient(180deg, #E6007E 0%, #B30062 100%); color: white; }
     </style>
 </head>
 <body>
 
     <div id="map"></div>
 
-    <!-- Top Controls -->
+    <!-- Floating Search & Info -->
     <div class="search-container flex flex-col gap-3">
         <div class="glass-panel p-4 flex items-center gap-3">
-            <i class="fas fa-search text-gray-400"></i>
-            <input id="zone-search" type="text" placeholder="Code de zone ou adresse" class="bg-transparent border-none outline-none font-semibold text-gray-800 w-full">
-            <button class="text-gray-400"><i class="fas fa-camera"></i></button>
+            <i class="fas fa-search text-gray-400 text-lg"></i>
+            <input id="zone-search" type="text" placeholder="Où voulez-vous vous garer ?" class="bg-transparent border-none outline-none font-semibold text-gray-800 w-full text-base">
+            <div class="h-6 w-px bg-gray-200"></div>
+            <button class="text-pink-600"><i class="fas fa-camera text-lg"></i></button>
+        </div>
+        
+        <!-- Optional: Quick filters -->
+        <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+            <div class="glass-panel px-4 py-2 whitespace-nowrap text-xs font-bold text-gray-600 flex items-center gap-2">
+                <i class="fas fa-bolt text-yellow-500"></i> Bornes de recharge
+            </div>
+            <div class="glass-panel px-4 py-2 whitespace-nowrap text-xs font-bold text-gray-600 flex items-center gap-2">
+                <i class="fas fa-wheelchair text-blue-500"></i> Accessibilité
+            </div>
         </div>
     </div>
 
-    <button onclick="centerMap()" class="fixed right-5 bottom-[180px] bg-white w-14 h-14 rounded-full shadow-xl z-50 flex items-center justify-center text-gray-600 active:scale-95 transition-all">
-        <i class="fas fa-location-arrow text-xl"></i>
-    </button>
+    <!-- Actions Buttons -->
+    <div class="fixed right-5 bottom-[180px] flex flex-col gap-3 z-50">
+        <button onclick="centerMap()" class="bg-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-gray-600 active:scale-95 transition-all">
+            <i class="fas fa-location-arrow text-xl"></i>
+        </button>
+        <button onclick="zoomIn()" class="bg-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-400 active:scale-95 transition-all">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
 
-    <!-- Bottom Sheet for Parking Selection -->
-    <div id="initial-sheet" class="bottom-sheet active">
+    <!-- Selection Bottom Sheet (Hidden by default) -->
+    <div id="initial-sheet" class="bottom-sheet">
+        <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" onclick="closeSheet()"></div>
         <div class="flex justify-between items-start mb-2">
             <div>
                 <h3 id="current-zone-name" class="text-2xl font-black leading-tight">Zone 1001</h3>
@@ -81,7 +103,6 @@
             <div id="current-zone-price" class="text-right font-black text-gray-800">2.50 CHF/h</div>
         </div>
 
-        <!-- Wheel Timer -->
         <div class="timer-container" id="wheel-container">
             <svg viewBox="0 0 260 260" class="timer-wheel-svg" id="timer-wheel">
                 <circle cx="130" cy="130" r="110" fill="none" stroke="#f3f4f6" stroke-width="20" />
@@ -90,48 +111,23 @@
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span id="display-time" class="text-5xl font-black text-gray-800">01:00</span>
-                <span class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Fin de stationnement</span>
+                <span class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Durée prévue</span>
             </div>
         </div>
 
         <div class="bg-gray-50 p-4 rounded-2xl flex items-center justify-between mb-6 border border-gray-100">
             <div class="flex items-center gap-3">
-                <div id="active-vehicle-icon" class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
                     <i class="fas fa-car"></i>
                 </div>
-                <div id="selected-vehicle-display" class="font-bold text-gray-800">Sélectionner...</div>
+                <div id="selected-vehicle-display" class="font-bold text-gray-800">GE 123 456</div>
             </div>
             <button onclick="openModal('vehicle-modal')" class="text-pink-600 font-bold text-sm">Changer</button>
         </div>
 
         <button id="start-btn" onclick="startParking()" class="btn-pink w-full py-5 rounded-2xl font-black uppercase text-xl shadow-lg shadow-pink-200">
-            Démarrer
+            Démarrer le stationnement
         </button>
-    </div>
-
-    <!-- Active Parking Session View -->
-    <div id="active-sheet" class="bottom-sheet parking-active-bg">
-        <div class="text-center mb-6">
-            <div class="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Session Active</div>
-            <h1 id="parking-timer" class="text-6xl font-black">00:00:00</h1>
-        </div>
-        
-        <div class="flex justify-between items-center bg-white/10 p-4 rounded-2xl mb-6 backdrop-blur-md border border-white/20">
-            <div class="text-sm">
-                <p class="font-bold">Total estimé</p>
-                <p id="estimated-cost" class="text-xl font-black">0.00 CHF</p>
-            </div>
-            <div class="h-10 w-px bg-white/20"></div>
-            <div class="text-sm text-right">
-                <p class="font-bold">Zone</p>
-                <p class="text-xl font-black">1001</p>
-            </div>
-        </div>
-
-        <div class="flex gap-4">
-            <button class="flex-1 bg-white/20 py-4 rounded-2xl font-black uppercase border border-white/30 active:scale-95 transition-all">Prolonger</button>
-            <button onclick="stopParking()" class="flex-1 bg-white py-4 rounded-2xl font-black uppercase text-pink-600 shadow-xl active:scale-95 transition-all">Arrêter</button>
-        </div>
     </div>
 
     <!-- Navigation Bar -->
@@ -157,89 +153,49 @@
     <!-- Modals -->
     <div id="auth-modal" class="modal">
         <div class="modal-content">
-            <div id="phone-auth-container">
-                <h3 class="text-3xl font-black mb-2 leading-tight">Bienvenue sur SwissPark</h3>
-                <p class="text-gray-500 font-semibold mb-8">Veuillez vous connecter avec votre numéro de mobile.</p>
-                
-                <form id="phone-form" class="space-y-4">
-                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100 flex items-center gap-3">
-                        <img src="https://flagcdn.com/ch.svg" class="w-6 h-4 rounded-sm shadow-sm" alt="CH">
-                        <input type="tel" id="phone-number" placeholder="+41 79 000 00 00" class="bg-transparent border-none outline-none font-bold text-xl text-gray-800 w-full" required>
-                    </div>
-                    <div id="recaptcha-container"></div>
-                    <button type="submit" class="btn-pink w-full py-5 rounded-2xl font-black uppercase text-lg shadow-lg">Continuer</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="vehicle-modal" class="modal">
-        <div class="modal-content">
-            <h3 class="text-2xl font-black mb-6">Mes Véhicules</h3>
-            <div id="vehicles-list" class="space-y-4 mb-8">
-                <!-- Vehicles here -->
-            </div>
-            <button onclick="addNewVehicle()" class="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-400 font-bold active:bg-gray-50 transition-all">
-                + Ajouter un véhicule
-            </button>
-            <button onclick="closeModal('vehicle-modal')" class="w-full mt-4 font-bold text-gray-400 py-2">Fermer</button>
+            <h3 class="text-3xl font-black mb-2">Compte</h3>
+            <p class="text-gray-500 mb-8 font-semibold">Connectez-vous pour synchroniser vos données.</p>
+            <form id="phone-form" class="space-y-4">
+                <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100 flex items-center gap-3">
+                    <img src="https://flagcdn.com/ch.svg" class="w-6 h-4 rounded-sm" alt="CH">
+                    <input type="tel" id="phone-number" placeholder="+41 79 000 00 00" class="bg-transparent border-none outline-none font-bold text-xl text-gray-800 w-full" required>
+                </div>
+                <button type="submit" class="btn-pink w-full py-5 rounded-2xl font-black uppercase text-lg">Se connecter</button>
+            </form>
+            <button onclick="closeModal('auth-modal')" class="w-full mt-4 font-bold text-gray-400">Annuler</button>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
     <script>
-        // --- Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyB3uDEtxEcwxuRRqItU1G-sn5cAWse-gpc",
-            authDomain: "swisspark-e4c0a.firebaseapp.com",
-            projectId: "swisspark-e4c0a",
-            storageBucket: "swisspark-e4c0a.firebasestorage.app",
-            messagingSenderId: "852079002086",
-            appId: "1:852079002086:web:e4de222417deff1aabd627"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        auth.languageCode = 'fr';
-
-        // --- App State ---
-        let vehicles = JSON.parse(localStorage.getItem('sp_vehicles')) || [{ plate: "GE 123456", id: 1 }];
-        let activeSession = null;
-        let timerInterval = null;
-        let selectedDuration = 1; // hours
-        let selectedZone = { id: 1001, name: "Lausanne Centre", price: 2.50 };
-
-        // --- Map Init ---
+        // --- Map Setup ---
         const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([46.5197, 6.6323], 15);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
 
         const parkingSpots = [
-            { id: 1001, name: "Lausanne Centre", pos: [46.5197, 6.6323], price: 2.50 },
+            { id: 1001, name: "Lausanne Riponne", pos: [46.5237, 6.6323], price: 2.50 },
             { id: 1002, name: "Lausanne Gare", pos: [46.5167, 6.6293], price: 3.00 },
             { id: 2001, name: "Genève Centre", pos: [46.2044, 6.1432], price: 4.50 }
         ];
 
         parkingSpots.forEach(spot => {
-            const markerIcon = L.divIcon({
-                className: 'custom-marker',
-                html: `<div class="bg-[#E6007E] text-white px-3 py-1 rounded-full font-black shadow-lg text-sm border-2 border-white transform hover:scale-110 transition-all">${spot.price.toFixed(2)}</div>`
-            });
-            const m = L.marker(spot.pos, { icon: markerIcon }).addTo(map);
-            m.on('click', () => selectZone(spot));
+            const markerHtml = `<div class="bg-[#E6007E] text-white px-3 py-1 rounded-full font-black shadow-lg text-sm border-2 border-white">${spot.price.toFixed(2)}</div>`;
+            const icon = L.divIcon({ className: 'custom-marker', html: markerHtml, iconSize: [50, 30], iconAnchor: [25, 15] });
+            L.marker(spot.pos, { icon }).addTo(map).on('click', () => openParkingSheet(spot));
         });
 
-        function selectZone(spot) {
-            selectedZone = spot;
+        function openParkingSheet(spot) {
             document.getElementById('current-zone-name').innerText = spot.name;
             document.getElementById('current-zone-price').innerText = `${spot.price.toFixed(2)} CHF/h`;
             document.getElementById('initial-sheet').classList.add('active');
         }
 
-        function centerMap() {
-            map.flyTo([46.5197, 6.6323], 16);
+        function closeSheet() {
+            document.getElementById('initial-sheet').classList.remove('active');
         }
+
+        function centerMap() { map.flyTo([46.5197, 6.6323], 15); }
+        function zoomIn() { map.setZoom(map.getZoom() + 1); }
 
         // --- Wheel Logic ---
         const wheel = document.getElementById('timer-wheel');
@@ -247,86 +203,37 @@
         const progress = document.getElementById('progress-bar');
         const display = document.getElementById('display-time');
         const r = 110;
+        let isDragging = false;
 
         function updateWheel(e) {
             const rect = wheel.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            const x = (e.touches ? e.touches[0].clientX : e.clientX) - centerX;
-            const y = (e.touches ? e.touches[0].clientY : e.clientY) - centerY;
-            
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const x = (e.touches ? e.touches[0].clientX : e.clientX) - cx;
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - cy;
             let rad = Math.atan2(y, x);
             let deg = rad * (180 / Math.PI) + 90;
             if (deg < 0) deg += 360;
             
-            // Handle position
             handle.setAttribute('cx', 130 + r * Math.cos(rad));
             handle.setAttribute('cy', 130 + r * Math.sin(rad));
-            
-            // Progress
             progress.style.strokeDashoffset = 691 - (deg / 360) * 691;
             
-            // Time calculation
-            selectedDuration = Math.max(0.5, Math.round((deg / 360) * 12 * 2) / 2);
-            const h = Math.floor(selectedDuration);
-            const m = (selectedDuration % 1) * 60;
+            let hours = Math.max(0.5, Math.round((deg / 360) * 12 * 2) / 2);
+            let h = Math.floor(hours);
+            let m = (hours % 1) * 60;
             display.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
         }
 
-        let isDragging = false;
         wheel.addEventListener('mousedown', () => isDragging = true);
         window.addEventListener('mouseup', () => isDragging = false);
         window.addEventListener('mousemove', (e) => isDragging && updateWheel(e));
-        wheel.addEventListener('touchstart', () => isDragging = true);
+        wheel.addEventListener('touchstart', (e) => { isDragging = true; e.preventDefault(); });
         window.addEventListener('touchend', () => isDragging = false);
         window.addEventListener('touchmove', (e) => isDragging && updateWheel(e));
 
-        // --- Session Logic ---
-        function startParking() {
-            document.getElementById('initial-sheet').classList.remove('active');
-            document.getElementById('active-sheet').classList.add('active');
-            
-            let seconds = selectedDuration * 3600;
-            updateTimerDisplay(seconds);
-            
-            timerInterval = setInterval(() => {
-                seconds--;
-                updateTimerDisplay(seconds);
-                if (seconds <= 0) stopParking();
-            }, 1000);
-        }
-
-        function updateTimerDisplay(s) {
-            const hrs = Math.floor(s / 3600);
-            const mins = Math.floor((s % 3600) / 60);
-            const secs = s % 60;
-            document.getElementById('parking-timer').innerText = 
-                `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            document.getElementById('estimated-cost').innerText = `${(selectedZone.price * selectedDuration).toFixed(2)} CHF`;
-        }
-
-        function stopParking() {
-            clearInterval(timerInterval);
-            document.getElementById('active-sheet').classList.remove('active');
-            document.getElementById('initial-sheet').classList.add('active');
-        }
-
-        // --- UI Modals ---
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
-        // Initial setup
-        renderVehicles();
-        function renderVehicles() {
-            const list = document.getElementById('vehicles-list');
-            list.innerHTML = vehicles.map(v => `
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <span class="vehicle-tag">${v.plate}</span>
-                    <i class="fas fa-check-circle text-pink-600"></i>
-                </div>
-            `).join('');
-            document.getElementById('selected-vehicle-display').innerText = vehicles[0]?.plate || 'Aucun';
-        }
     </script>
 </body>
 </html>
