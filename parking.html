@@ -3,91 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SwissPark - Parking</title>
+<title>SwissPark - Système Numérique ICP</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-.wheel {width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(from 0deg, #3b82f6 0deg 90deg, #60a5fa 90deg 180deg, #93c5fd 180deg 270deg, #dbeafe 270deg 360deg); position: relative; cursor: pointer; box-shadow: 0 10px 40px rgba(59,130,246,0.3); transition: transform 0.3s;}
-.wheel:hover {transform: scale(1.05);}
-.wheel-center {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.1);}
-.time-display {font-size: 3rem; font-weight: bold; color: #1e40af;}
-.cost-display {font-size: 1.2rem; color: #64748b; margin-top: 0.5rem;}
+#map { height: 400px; width: 100%; border-radius: 1.5rem; z-index: 1; }
+.num-button { background: #f3f4f6; border: 2px solid transparent; transition: all 0.2s; }
+.num-button:hover { background: #e5e7eb; border-color: #3b82f6; }
+.num-button.active { background: #3b82f6; color: white; border-color: #2563eb; }
+.digital-timer { font-family: 'Courier New', Courier, monospace; letter-spacing: 0.1em; }
 </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 min-h-screen">
 
-<div class="min-h-screen">
-<!-- Header -->
-<header class="bg-white shadow-sm p-4 flex justify-between items-center">
-<div><h1 class="text-2xl font-bold text-blue-600">SwissPark</h1></div>
-<button onclick="logout()" class="text-gray-600 hover:text-red-600">Déconnexion</button>
-</header>
+<div class="flex flex-col h-screen">
+    <!-- Header Numérique -->
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">SP</div>
+            <h1 class="text-xl font-bold text-gray-800">SwissPark Digital</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="userPhone" class="text-sm text-blue-600 font-medium hidden md:block"></span>
+            <button onclick="logout()" class="text-sm font-semibold text-gray-500 hover:text-red-600">Déconnexion</button>
+        </div>
+    </header>
 
-<!-- Main -->
-<main class="max-w-md mx-auto p-6">
-<!-- User Info -->
-<div class="bg-white rounded-2xl p-4 mb-6 shadow-sm">
-<p class="text-sm text-gray-600">Connecté: <span id="userPhone" class="font-semibold text-blue-600"></span></p>
-<p class="text-sm text-gray-600">Véhicule: <span class="font-semibold">GE 12345</span></p>
-</div>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+        
+        <!-- Map & Search Section -->
+        <div class="relative">
+            <div id="map" class="shadow-lg border-2 border-white"></div>
+            
+            <!-- Search Bar Overlay -->
+            <div class="absolute top-4 left-4 right-4 z-[1000] flex gap-2">
+                <input type="text" id="searchParking" placeholder="Rechercher une zone ou adresse..." 
+                       class="flex-1 px-4 py-3 rounded-xl shadow-xl border-none focus:ring-2 focus:ring-blue-500 outline-none">
+                <button class="bg-blue-600 text-white p-3 rounded-xl shadow-xl hover:bg-blue-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
 
-<!-- Parking Status -->
-<div id="parkingStatus" class="bg-white rounded-3xl p-8 shadow-xl text-center">
-<!-- Start View -->
-<div id="startView">
-<h2 class="text-xl font-bold text-gray-800 mb-2">Démarrer le parking</h2>
-<p class="text-gray-600 mb-6">Zone: Genève Centre - P1234</p>
+        <!-- Digital Controls Panel -->
+        <div class="bg-white rounded-3xl p-6 shadow-xl space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-800">Sélection Numérique</h2>
+                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase">Zone 1200</span>
+            </div>
 
-<!-- Wheel -->
-<div class="flex justify-center mb-6">
-<div class="wheel" onclick="adjustTime(15)">
-<div class="wheel-center">
-<div class="time-display" id="timeDisplay">1h</div>
-<div class="cost-display" id="costDisplay">CHF 4.00</div>
-</div>
-</div>
-</div>
+            <!-- Digital Time Selector -->
+            <div class="grid grid-cols-4 gap-3">
+                <button onclick="setDigitalTime(15)" class="num-button py-3 rounded-xl font-bold text-gray-700" id="btn-15">15m</button>
+                <button onclick="setDigitalTime(30)" class="num-button py-3 rounded-xl font-bold text-gray-700" id="btn-30">30m</button>
+                <button onclick="setDigitalTime(60)" class="num-button py-3 rounded-xl font-bold text-gray-700 active" id="btn-60">1h</button>
+                <button onclick="setDigitalTime(120)" class="num-button py-3 rounded-xl font-bold text-gray-700" id="btn-120">2h</button>
+            </div>
 
-<div class="flex gap-2 mb-4">
-<button onclick="adjustTime(-15)" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-xl">− 15min</button>
-<button onclick="adjustTime(15)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl">+ 15min</button>
-</div>
+            <!-- Digital Display -->
+            <div class="bg-gray-900 rounded-2xl p-6 text-center shadow-inner">
+                <div class="text-xs text-blue-400 mb-1 uppercase tracking-widest font-bold">Temps de réservation</div>
+                <div class="text-5xl font-bold text-white digital-timer mb-2" id="digitalTimer">01:00:00</div>
+                <div class="text-lg font-bold text-blue-400" id="digitalCost">CHF 4.00</div>
+            </div>
 
-<button onclick="startParking()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg">🅿️ Démarrer le parking</button>
-</div>
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="reserveParking()" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-2xl transition shadow-sm">
+                    🗓️ Réserver
+                </button>
+                <button onclick="startParking()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-blue-200">
+                    🅿️ Démarrer
+                </button>
+            </div>
+        </div>
 
-<!-- Active View -->
-<div id="activeView" class="hidden">
-<h2 class="text-xl font-bold text-green-600 mb-4">✅ Parking en cours</h2>
-<div class="bg-green-50 rounded-xl p-6 mb-6">
-<p class="text-gray-700 mb-2">Temps restant</p>
-<p class="text-4xl font-bold text-green-600" id="remainingTime">45min</p>
-<p class="text-gray-600 mt-4">Coût actuel: <span class="font-bold text-green-600" id="currentCost">CHF 2.50</span></p>
-</div>
+        <!-- Reservation Status (Hidden by default) -->
+        <div id="activeReservation" class="hidden bg-green-600 rounded-3xl p-6 text-white shadow-xl space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-xl">✅ Session Active</h3>
+                <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">GE 12345</span>
+            </div>
+            <div class="text-center py-4">
+                <div class="text-5xl font-bold digital-timer" id="activeTimer">00:59:59</div>
+                <p class="text-green-100 mt-2">Fin prévue à 16:30</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="extendParking()" class="flex-1 bg-white/20 hover:bg-white/30 py-3 rounded-xl font-bold">Prolonger</button>
+                <button onclick="stopParking()" class="flex-1 bg-red-500 hover:bg-red-600 py-3 rounded-xl font-bold">Terminer</button>
+            </div>
+        </div>
 
-<button onclick="extendParking()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl mb-3">+ Prolonger 15min</button>
-<button onclick="stopParking()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg">⛔ Arrêter le parking</button>
-</div>
-</div>
+    </main>
 
-<!-- Quick Actions -->
-<div class="mt-6 grid grid-cols-2 gap-4">
-<button onclick="showHistory()" class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-<div class="text-2xl mb-2">📝</div>
-<div class="text-sm font-semibold text-gray-700">Historique</div>
-</button>
-<button onclick="showVehicles()" class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-<div class="text-2xl mb-2">🚗</div>
-<div class="text-sm font-semibold text-gray-700">Véhicules</div>
-</button>
-</div>
-
-<!-- Info -->
-<div class="mt-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-<p class="text-sm text-blue-800"><strong>ℹ️ Système EasyPark:</strong> Tournez la roue pour sélectionner le temps. Payez à la minute. Connexion par téléphone sécurisée!</p>
-</div>
-</main>
+    <!-- Navigation Footer -->
+    <nav class="bg-white border-t flex justify-around p-3">
+        <button class="flex flex-col items-center text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            <span class="text-[10px] font-bold mt-1">CARTE</span>
+        </button>
+        <button class="flex flex-col items-center text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-[10px] font-bold mt-1">HISTORIQUE</span>
+        </button>
+        <button class="flex flex-col items-center text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span class="text-[10px] font-bold mt-1">PROFIL</span>
+        </button>
+    </nav>
 </div>
 
 <script>
@@ -95,26 +130,81 @@ const firebaseConfig = {authDomain: "swisspark-e4c0a.firebaseapp.com", projectId
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-let parkingMinutes = 60;
+let map;
+let selectedMinutes = 60;
 const pricePerHour = 4.00;
 
-auth.onAuthStateChanged((user) => {if (user) {document.getElementById('userPhone').textContent = user.phoneNumber || 'Non disponible';} else {window.location.href = '/swisspark-web/';}});
+window.onload = function() {
+    // Initialiser la Map (ICP Style)
+    map = L.map('map').setView([46.2044, 6.1432], 14); // Genève
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-function adjustTime(minutes) {parkingMinutes = Math.max(15, Math.min(480, parkingMinutes + minutes)); updateDisplay();}
+    // Ajouter des marqueurs de parking
+    const parkings = [
+        { lat: 46.2044, lng: 6.1432, name: "Zone 1200 - Centre" },
+        { lat: 46.2100, lng: 6.1450, name: "Zone 1201 - Gare" },
+        { lat: 46.2000, lng: 6.1300, name: "Zone 1202 - Plainpalais" }
+    ];
 
-function updateDisplay() {const hours = Math.floor(parkingMinutes / 60); const mins = parkingMinutes % 60; let timeStr = hours > 0 ? hours + 'h' : ''; timeStr += mins > 0 ? (hours > 0 ? ' ' : '') + mins + 'min' : ''; if(parkingMinutes === 60) timeStr = '1h'; document.getElementById('timeDisplay').textContent = timeStr; const cost = (parkingMinutes / 60 * pricePerHour).toFixed(2); document.getElementById('costDisplay').textContent = 'CHF ' + cost;}
+    parkings.forEach(p => {
+        L.marker([p.lat, p.lng]).addTo(map).bindPopup(p.name);
+    });
 
-function startParking() {document.getElementById('startView').classList.add('hidden'); document.getElementById('activeView').classList.remove('hidden'); document.getElementById('remainingTime').textContent = document.getElementById('timeDisplay').textContent; document.getElementById('currentCost').textContent = document.getElementById('costDisplay').textContent;}
+    // Auth
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById('userPhone').textContent = user.phoneNumber || 'Connecté';
+        } else {
+            window.location.href = '/swisspark-web/';
+        }
+    });
 
-function stopParking() {if(confirm('Arrêter le parking maintenant?')) {document.getElementById('startView').classList.remove('hidden'); document.getElementById('activeView').classList.add('hidden');}}
+    updateDigitalDisplay();
+};
 
-function extendParking() {adjustTime(15); document.getElementById('remainingTime').textContent = document.getElementById('timeDisplay').textContent; document.getElementById('currentCost').textContent = document.getElementById('costDisplay').textContent;}
+function setDigitalTime(mins) {
+    selectedMinutes = mins;
+    // Update active class on buttons
+    document.querySelectorAll('.num-button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('btn-' + mins).classList.add('active');
+    updateDigitalDisplay();
+}
 
-function showHistory() {alert('Historique des parkings - À venir!');}
-function showVehicles() {alert('Gestion des véhicules - À venir!');}
-function logout() {auth.signOut().then(() => {window.location.href = '/swisspark-web/';});}
+function updateDigitalDisplay() {
+    const hours = Math.floor(selectedMinutes / 60);
+    const mins = selectedMinutes % 60;
+    const timeStr = String(hours).padStart(2, '0') + ":" + String(mins).padStart(2, '0') + ":00";
+    document.getElementById('digitalTimer').textContent = timeStr;
+    const cost = (selectedMinutes / 60 * pricePerHour).toFixed(2);
+    document.getElementById('digitalCost').textContent = 'CHF ' + cost;
+}
 
-updateDisplay();
+function reserveParking() {
+    alert('📅 Réservation numérique confirmée pour ' + selectedMinutes + ' minutes.
+Vous recevrez une notification 10min avant.');
+}
+
+function startParking() {
+    document.getElementById('activeReservation').classList.remove('hidden');
+    document.getElementById('activeTimer').textContent = document.getElementById('digitalTimer').textContent;
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function stopParking() {
+    if(confirm('Terminer la session numérique?')) {
+        document.getElementById('activeReservation').classList.add('hidden');
+    }
+}
+
+function extendParking() {
+    alert('➕ 15 minutes ajoutées à votre session numérique.');
+}
+
+function logout() {
+    auth.signOut().then(() => { window.location.href = '/swisspark-web/'; });
+}
 </script>
 </body>
 </html>
