@@ -13,6 +13,8 @@
 .num-button:hover { background: #e5e7eb; border-color: #3b82f6; }
 .num-button.active { background: #3b82f6; color: white; border-color: #2563eb; }
 .digital-timer { font-family: 'Courier New', Courier, monospace; letter-spacing: 0.1em; }
+.easy-p-btn { transition: transform 0.1s; }
+.easy-p-btn:active { transform: scale(0.95); }
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -28,17 +30,25 @@
             <button onclick="logout()" class="text-sm font-semibold text-gray-500 hover:text-red-600">Déconnexion</button>
         </div>
     </header>
+
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
         
-        <!-- Map & Search Section -->
-        <div class="relative">
-            
-            <!-- Search Bar Overlay -->
-            <div class="absolute top-4 left-4 right-4 z-[1000] flex gap-2">
-                <iframe id="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d43883.34!2d6.1432!3d46.2044!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478c650693d0e2eb%3A0xa0b695357d26e200!2sGen%C3%A8ve%2C%20Suisse!5e0!3m2!1sfr!2sfr!4v1234567890" frameborder="0" allowfullscreen="" loading="lazy" class="shadow-lg border-2 border-white" style="height: 400px; width: 100%; border-radius: 1.5rem; z-index: 1;"></iframe>
-            </div>
+        <!-- Toggle Mode (Client / Owner) -->
+        <div class="bg-white rounded-2xl p-2 shadow-sm flex gap-2">
+            <button id="modeFind" onclick="setMode('find')" class="flex-1 py-3 rounded-xl font-bold transition-all bg-blue-600 text-white shadow-md">
+                🔍 Chercher un park
+            </button>
+            <button id="modeOffer" onclick="setMode('offer')" class="flex-1 py-3 rounded-xl font-bold transition-all bg-gray-100 text-gray-600">
+                🅿️ Proposer un park
+            </button>
         </div>
+
+        <!-- Map Section -->
+        <div class="relative">
+            <iframe id="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d43883.34!2d6.1432!3d46.2044!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478c650693d0e2eb%3A0xa0b695357d26e200!2sGen%C3%A8ve%2C%20Suisse!5e0!3m2!1sfr!2sfr!4v1234567890" frameborder="0" allowfullscreen="" loading="lazy" class="shadow-lg border-2 border-white" style="height: 400px; width: 100%; border-radius: 1.5rem; z-index: 1;"></iframe>
+        </div>
+
         <!-- Digital Controls Panel -->
         <div class="bg-white rounded-3xl p-6 shadow-xl space-y-6">
             <div class="flex justify-between items-center">
@@ -58,17 +68,18 @@
                 <div class="text-5xl font-bold text-white digital-timer mb-2" id="digitalTimer">01:00:00</div>
                 <div class="text-lg font-bold text-blue-400" id="digitalCost">CHF 4.00</div>
             </div>
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="reserveParking()" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-2xl transition shadow-sm">
-                    🗓️ Réserver
+            <!-- EasyPark Style Action Buttons -->
+            <div class="flex flex-col gap-4">
+                <button onclick="startParking()" class="easy-p-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-5 rounded-2xl text-xl shadow-xl shadow-blue-200">
+                    DÉMARRER LE PARKING
                 </button>
-                <button onclick="startParking()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-blue-200">
-                    🅿️ Démarrer
+                <button onclick="reserveParking()" class="easy-p-btn w-full bg-gray-100 hover:bg-gray-200 text-blue-600 font-bold py-4 rounded-2xl shadow-sm">
+                    RÉSERVER POUR PLUS TARD
                 </button>
             </div>
         </div>
-        <!-- Reservation Status (Hidden by default) -->
+
+        <!-- Reservation Status -->
         <div id="activeReservation" class="hidden bg-green-600 rounded-3xl p-6 text-white shadow-xl space-y-4">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-xl">✅ Session Active</h3>
@@ -76,7 +87,7 @@
             </div>
             <div class="text-center py-4">
                 <div class="text-5xl font-bold digital-timer" id="activeTimer">00:59:59</div>
-                <p class="text-green-100 mt-2">Fin prévue à 16:30</p>
+                <p class="text-green-100 mt-2">Fin prévue à 18:30</p>
             </div>
             <div class="flex gap-3">
                 <button onclick="extendParking()" class="flex-1 bg-white/20 hover:bg-white/30 py-3 rounded-xl font-bold">Prolonger</button>
@@ -84,9 +95,44 @@
             </div>
         </div>
     </main>
+
+    <!-- Profile Section (Hidden by default) -->
+    <div id="profileSection" class="hidden fixed inset-0 bg-white z-[2000] p-6 flex flex-col">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold">Mon Profil</h2>
+            <button onclick="toggleProfile()" class="text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="space-y-6">
+            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl font-bold">SP</div>
+                <div>
+                    <div id="profilePhone" class="font-bold text-lg">Numéro inconnu</div>
+                    <div class="text-sm text-gray-500">Membre SwissPark</div>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <button class="w-full text-left p-4 hover:bg-gray-50 rounded-xl flex items-center justify-between">
+                    <span>Véhicules</span>
+                    <span class="text-gray-400">GE 12345 ></span>
+                </button>
+                <button class="w-full text-left p-4 hover:bg-gray-50 rounded-xl flex items-center justify-between">
+                    <span>Moyens de paiement</span>
+                    <span class="text-gray-400">Visa **** ></span>
+                </button>
+                <button onclick="logout()" class="w-full text-left p-4 text-red-600 font-bold">
+                    Se déconnecter
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation Footer -->
-    <nav class="bg-white border-t flex justify-around p-3">
-        <button class="flex flex-col items-center text-blue-600">
+    <nav class="bg-white border-t flex justify-around p-3 z-50">
+        <button onclick="toggleProfile(false)" class="flex flex-col items-center text-blue-600">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
@@ -98,7 +144,7 @@
             </svg>
             <span class="text-[10px] font-bold mt-1">HISTORIQUE</span>
         </button>
-        <button class="flex flex-col items-center text-gray-400">
+        <button onclick="toggleProfile(true)" class="flex flex-col items-center text-gray-400">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
@@ -106,26 +152,50 @@
         </button>
     </nav>
 </div>
+
 <script>
 const firebaseConfig = {authDomain: "swisspark-e4c0a.firebaseapp.com", projectId: "swisspark-e4c0a", apiKey: "AIzaSyB3uDEtxEcwxuRRqItU1G-sn5cAWse-gpc", storageBucket: "swisspark-e4c0a.firebasestorage.app", messagingSenderId: "852079002086", appId: "1:852079002086:web:d9d1f6c4e8b5a3c2d4e5f6"};
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// Variables globales
+// Global Variables
 let selectedMinutes = 60;
 const pricePerHour = 4.00;
+let currentMode = 'find';
 
-// Auth
+// Auth State
 auth.onAuthStateChanged((user) => {
     if (user) {
-        document.getElementById('userPhone').textContent = user.phoneNumber || 'Connecté';
+        const phone = user.phoneNumber || 'Connecté';
+        document.getElementById('userPhone').textContent = phone;
+        document.getElementById('profilePhone').textContent = phone;
     } else {
         window.location.href = '/swisspark-web/index.html';
     }
 });
 
-// Initialisation
-updateDigitalDisplay();
+function toggleProfile(show) {
+    const section = document.getElementById('profileSection');
+    if (show) {
+        section.classList.remove('hidden');
+    } else {
+        section.classList.add('hidden');
+    }
+}
+
+function setMode(mode) {
+    currentMode = mode;
+    const btnFind = document.getElementById('modeFind');
+    const btnOffer = document.getElementById('modeOffer');
+    
+    if (mode === 'find') {
+        btnFind.className = "flex-1 py-3 rounded-xl font-bold transition-all bg-blue-600 text-white shadow-md";
+        btnOffer.className = "flex-1 py-3 rounded-xl font-bold transition-all bg-gray-100 text-gray-600";
+    } else {
+        btnOffer.className = "flex-1 py-3 rounded-xl font-bold transition-all bg-blue-600 text-white shadow-md";
+        btnFind.className = "flex-1 py-3 rounded-xl font-bold transition-all bg-gray-100 text-gray-600";
+    }
+}
 
 function setDigitalTime(mins) {
     selectedMinutes = mins;
@@ -144,7 +214,8 @@ function updateDigitalDisplay() {
 }
 
 function reserveParking() {
-    alert('📅 Réservation numérique confirmée pour ' + selectedMinutes + ' minutes.\nVous recevrez une notification 10min avant.');
+    alert('📅 Réservation numérique confirmée pour ' + selectedMinutes + ' minutes.
+Vous recevrez une notification 10min avant.');
 }
 
 function startParking() {
@@ -168,6 +239,9 @@ function logout() {
         window.location.href = '/swisspark-web/index.html';
     });
 }
+
+// Init
+updateDigitalDisplay();
 </script>
 </body>
 </html>
