@@ -7,8 +7,6 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 #map { height: 400px; width: 100%; border-radius: 1.5rem; z-index: 1; }
 .num-button { background: #f3f4f6; border: 2px solid transparent; transition: all 0.2s; }
@@ -41,8 +39,7 @@
             
             <!-- Search Bar Overlay -->
             <div class="absolute top-4 left-4 right-4 z-[1000] flex gap-2">
-                <input type="text" id="searchParking" placeholder="Rechercher une zone ou adresse..." 
-                       class="flex-1 px-4 py-3 rounded-xl shadow-xl border-none focus:ring-2 focus:ring-blue-500 outline-none">
+            <iframe id="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d43883.34!2d6.1432!3d46.2044!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478c650693d0e2eb%3A0xa0b695357d26e200!2sGen%C3%A8ve%2C%20Suisse!5e0!3m2!1sfr!2sfr!4v1234567890" frameborder="0" allowfullscreen="" loading="lazy" class="shadow-lg border-2 border-white" style="height: 400px; width: 100%; border-radius: 1.5rem; z-index: 1;"></iframe>                       class="flex-1 px-4 py-3 rounded-xl shadow-xl border-none focus:ring-2 focus:ring-blue-500 outline-none">
                 <button class="bg-blue-600 text-white p-3 rounded-xl shadow-xl hover:bg-blue-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -129,35 +126,6 @@
 const firebaseConfig = {authDomain: "swisspark-e4c0a.firebaseapp.com", projectId: "swisspark-e4c0a", apiKey: "AIzaSyB3uDEtxEcwxuRRqItU1G-sn5cAWse-gpc", storageBucket: "swisspark-e4c0a.firebasestorage.app", messagingSenderId: "852079002086", appId: "1:852079002086:web:d9d1f6c4e8b5a3c2d4e5f6"};
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-
-let map;
-let selectedMinutes = 60;
-const pricePerHour = 4.00;
-
-window.onload = function() {
-    // Initialiser la Map (ICP Style)
-    map = L.map('map').setView([46.2044, 6.1432], 14); // Genève
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-    
-    // Fix pour afficher la carte correctement
-    setTimeout(function() {
-        if (map) {
-            map.invalidateSize();
-        }
-    }, 100);
-
-    // Ajouter des marqueurs de parking
-    const parkings = [
-        { lat: 46.2044, lng: 6.1432, name: "Zone 1200 - Centre" },
-        { lat: 46.2100, lng: 6.1450, name: "Zone 1201 - Gare" },
-        { lat: 46.2000, lng: 6.1300, name: "Zone 1202 - Plainpalais" }
-    ];
-
-    parkings.forEach(p => {
-        L.marker([p.lat, p.lng]).addTo(map).bindPopup(p.name);
-    });
 
     // Auth
     auth.onAuthStateChanged((user) => {
