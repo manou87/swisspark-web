@@ -1,126 +1,105 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwissPark – Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-</head>
-<body class="bg-gray-50 min-h-screen">
-
-    <!-- Header -->
-    <header class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold text-blue-600">SwissPark</h1>
-                <p class="text-sm text-gray-600">Le futur du parking en Suisse</p>
-            </div>
-            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
-                Déconnexion
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        
-        <!-- Welcome Section -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎉 Bienvenue sur SwissPark!</h2>
-            <p class="text-gray-600 mb-2">Vous êtes maintenant connecté(e) avec le numéro: <span id="userPhone" class="font-semibold text-blue-600"></span></p>
-            <p class="text-gray-600">La connexion par numéro de téléphone fonctionne parfaitement! 🚀</p>
-        </div>
-
-        <!-- Feature Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            
-            <!-- Card 1: Trouver un parking -->
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition">
-                <div class="text-4xl mb-4">🅿️</div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Trouver un parking</h3>
-                <p class="text-gray-600 mb-4">Recherchez et réservez une place de parking près de chez vous en quelques clics.</p>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition w-full">
-                    Rechercher
-                </button>
-            </div>
-
-            <!-- Card 2: Mes réservations -->
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition">
-                <div class="text-4xl mb-4">📝</div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Mes réservations</h3>
-                <p class="text-gray-600 mb-4">Consultez et gérez toutes vos réservations de parking actuelles et à venir.</p>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition w-full">
-                    Voir mes réservations
-                </button>
-            </div>
-
-            <!-- Card 3: Mon profil -->
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition">
-                <div class="text-4xl mb-4">👤</div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Mon profil</h3>
-                <p class="text-gray-600 mb-4">Gérez vos informations personnelles, véhicules et moyens de paiement.</p>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition w-full">
-                    Mon profil
-                </button>
-            </div>
-
-        </div>
-
-        <!-- Success Message -->
-        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
-            <h3 class="text-lg font-bold text-green-800 mb-2">✅ Connexion par téléphone fonctionnelle!</h3>
-            <p class="text-green-700">Le système d'authentification Firebase avec numéro de téléphone et code SMS est maintenant opérationnel. C'est un élément clé pour votre projet SwissPark! 🎉</p>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t mt-12">
-        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            <p class="text-center text-gray-500 text-sm">
-                © 2026 SwissPark. Tous droits réservés.
-            </p>
-        </div>
-    </footer>
-
-    <script>
-        // Configuration Firebase
-        const firebaseConfig = {
-            authDomain: "swisspark-e4c0a.firebaseapp.com",
-            projectId: "swisspark-e4c0a",
-            apiKey: "AIzaSyB3uDEtxEcwxuRRqItU1G-sn5cAWse-gpc",
-            storageBucket: "swisspark-e4c0a.firebasestorage.app",
-            messagingSenderId: "852079002086",
-            appId: "1:852079002086:web:d9d1f6c4e8b5a3c2d4e5f6"
-        };
-
-        // Initialiser Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // Vérifier si l'utilisateur est connecté
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // Utilisateur connecté
-                const phoneNumber = user.phoneNumber || 'Non disponible';
-                document.getElementById('userPhone').textContent = phoneNumber;
-            } else {
-                // Pas d'utilisateur connecté, rediriger vers la page de connexion
-                window.location.href = '/swisspark-web/';
-            }
-        });
-
-        // Fonction de déconnexion
-        function logout() {
-            auth.signOut().then(() => {
-                window.location.href = '/swisspark-web/';
-            }).catch((error) => {
-                console.error('Erreur de déconnexion:', error);
-            });
-        }
-    </script>
-
-</body>
-</html>
+<!DOCTYPE html><html lang="fr"><head> <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>SwissPark – Dashboard</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script></head><body class="bg-gray-50 min-h-screen"> <!-- Header -->
+ <header class="bg-white shadow-sm">
+ <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+ <div>
+ <h1 class="text-3xl font-bold text-blue-600">SwissPark</h1>
+ <p class="text-sm text-gray-600">Le futur du parking en Suisse</p>
+ </div>
+ <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+ Déconnexion
+ </button>
+ </div>
+ </header>
+ <!-- Main Content -->
+ <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+ <br> 
+ <!-- Welcome Section -->
+ <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+ <h2 class="text-2xl font-bold text-gray-800 mb-4">🎉 Bienvenue sur SwissPark!</h2>
+ <p class="text-gray-600 mb-2">Vous êtes maintenant connecté(e) avec le numéro: <span id="userPhone" class="font-semibold text-blue-600"></span></p>
+ <p class="text-gray-600">La connexion par numéro de téléphone fonctionne parfaitement! 🚀</p>
+ </div>
+ <!-- Feature Cards -->
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+ <br> 
+ <!-- Card 1: Trouver un parking -->
+ <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition">
+ <div class="text-4xl mb-4">🅿️</div>
+ <h3 class="text-xl font-bold text-gray-800 mb-2">Trouver un parking</h3>
+ <p class="text-gray-600 mb-4">Recherchez et réservez une place de parking près de chez vous en quelques clics.</p>
+ <button onclick="window.location.href='parking.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition w-full">
+ Rechercher
+ </button>
+ </div>
+ <!-- Card 2: Mes réservations -->
+ <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition">
+ <div class="text-4xl mb-4">📝</div>
+ <h3 class="text-xl font-bold text-gray-800 mb-2">Mes réservations</h3>
+ <p class="text-gray-600 mb-4">Consultez et gérez toutes vos réservations de parking actuelles et à venir.</p>
+ <button onclick="alert('Fonctionnalité Mes réservations bientôt disponible!')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition w-full">
+ Voir mes réservations
+ </button>
+ </div>
+ <!-- Card 3: Mon profil -->
+ <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition">
+ <div class="text-4xl mb-4">👤</div>
+ <h3 class="text-xl font-bold text-gray-800 mb-2">Mon profil</h3>
+ <p class="text-gray-600 mb-4">Gérez vos informations personnelles, véhicules et moyens de paiement.</p>
+ <button onclick="alert('Fonctionnalité Profil bientôt disponible!')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition w-full">
+ Mon profil
+ </button>
+ </div>
+ </div>
+ <!-- Success Message -->
+ <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+ <h3 class="text-lg font-bold text-green-800 mb-2">✅ Connexion par téléphone fonctionnelle!</h3>
+ <p class="text-green-700">Le système d'authentification Firebase avec numéro de téléphone et code SMS est maintenant opérationnel. C'est un élément clé pour votre projet SwissPark! 🎉</p>
+ </div>
+ </main>
+ <!-- Footer -->
+ <footer class="bg-white border-t mt-12">
+ <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+ <p class="text-center text-gray-500 text-sm">
+ © 2026 SwissPark. Tous droits réservés.
+ </p>
+ </div>
+ </footer>
+ <script>
+ // Configuration Firebase
+ const firebaseConfig = {
+ authDomain: "swisspark-e4c0a.firebaseapp.com",
+ projectId: "swisspark-e4c0a",
+ apiKey: "AIzaSyB3uDEtxEcwxuRRqItU1G-sn5cAWse-gpc",
+ storageBucket: "swisspark-e4c0a.firebasestorage.app",
+ messagingSenderId: "852079002086",
+ appId: "1:852079002086:web:d9d1f6c4e8b5a3c2d4e5f6"
+ };
+ // Initialiser Firebase
+ firebase.initializeApp(firebaseConfig);Link dashboard buttons and fix navigation
+     
+ const auth = firebase.auth();
+ // Vérifier si l'utilisateur est connecté
+ auth.onAuthStateChanged((user) => {
+ if (user) {
+ // Utilisateur connecté
+ const phoneNumber = user.phoneNumber || 'Non disponible';
+ document.getElementById('userPhone').textContent = phoneNumber;
+ } else {
+ // Pas d'utilisateur connecté, rediriger vers la page de connexion
+ window.location.href = 'index.html';
+ }
+ });
+ // Fonction de déconnexion
+ function logout() {
+ auth.signOut().then(() => {
+ window.location.href = 'index.html';
+ }).catch((error) => {
+ console.error('Erreur de déconnexion:', error);
+ });
+ }
+ </script></body></html>
