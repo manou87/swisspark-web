@@ -36,9 +36,7 @@
             </div>
             <div id="reg-form" class="space-y-4">
                 <input id="reg-name" type="text" placeholder="Nom complet" class="w-full p-4 bg-gray-100 rounded-2xl border-none font-bold">
-                <input id="reg-phone" type="tel" placeholder="+41 7x xxx xx xx" class="w-full p-4 bg-gray-100 rounded-2xl border-none font-bold">
-                <input id="reg-email" type="email" placeholder="Email" class="w-full p-4 bg-gray-100 rounded-2xl border-none font-bold">
-                <input id="reg-pass" type="password" placeholder="Mot de passe" class="w-full p-4 bg-gray-100 rounded-2xl border-none font-bold">
+                <input id="reg-contact" type="text" placeholder="Téléphone ou Email" class="w-full p-4 bg-gray-100 rounded-2xl border-none">                <input id="reg-pass" type="password" placeholder="Mot de passe" class="w-full p-4 bg-gray-100 rounded-2xl border-none font-bold">
                 <label class="flex items-start gap-3 p-2 cursor-pointer">
                     <input type="checkbox" id="reg-terms" class="mt-1 w-5 h-5 accent-[#0066CC]">
                     <span class="text-xs text-gray-500 font-medium">J'accepte les conditions générales de SwissPark.</span>
@@ -136,8 +134,7 @@
         let map, user = JSON.parse(localStorage.getItem('sp_user')), vehicle = JSON.parse(localStorage.getItem('sp_vehicle')), selectedSpot = null, pricingType = 'hr', duration = 1;
         document.addEventListener('DOMContentLoaded', () => { if (user) showApp(); });
         function handleRegister() {
-            const n = document.getElementById('reg-name').value, p = document.getElementById('reg-phone').value, t = document.getElementById('reg-terms').checked;
-            if (!n || !p || !t) { alert("Veuillez tout remplir."); return; }
+    const n = document.getElementById('reg-name').value, contact = document.getElementById('reg-contact').value, pass = document.getElementById('reg-pass').value, terms = document.getElementById('reg-terms').checked;            if (!n || !p || !t) { alert("Veuillez tout remplir."); return; }
             user = { n, p }; localStorage.setItem('sp_user', JSON.stringify(user)); showApp();
         }
         function showApp() {
