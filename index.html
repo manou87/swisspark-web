@@ -114,13 +114,24 @@
             });
             
             // Réinitialiser si l'utilisateur efface tout
+            // Réinitialiser si l'utilisateur efface tout
             phoneInput.addEventListener('input', function() {
+                // Sauvegarder la position du curseur
+                const cursorPos = this.selectionStart;
+                
+                // Si le préfixe +41  est manquant ou modifié
                 if (!this.value.startsWith('+41 ')) {
-                    this.value = '+41 ';
-                    this.setSelectionRange(4, 4);
+                    // Si le champ est vide ou ne commence pas correctement
+                    if (this.value.length === 0 || !this.value.startsWith('+41')) {
+                        this.value = '+41 ';
+                        this.setSelectionRange(4, 4);
+                    } else {
+                        // Restaurer le préfixe si l'espace est supprimé
+                        this.value = '+41 ' + this.value.substring(3).trim();
+                        this.setSelectionRange(Math.max(4, cursorPos), Math.max(4, cursorPos));
+                    }
                 }
             });
-            
             // S'assurer que le curseur ne va pas avant +41
             phoneInput.addEventListener('click', function() {
                 if (this.selectionStart < 4) {
