@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwissPark - Parking</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<style>
+.wheel {width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(from 0deg, #3b82f6 0deg 90deg, #60a5fa 90deg 180deg, #93c5fd 180deg 270deg, #dbeafe 270deg 360deg); position: relative; cursor: pointer; box-shadow: 0 10px 40px rgba(59,130,246,0.3); transition: transform 0.3s;}
+.wheel:hover {transform: scale(1.05);}
+.wheel-center {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.1);}
+.time-display {font-size: 3rem; font-weight: bold; color: #1e40af;}
+.cost-display {font-size: 1.2rem; color: #64748b; margin-top: 0.5rem;}
+</style>
+</head>
+<body class="bg-gray-50">
+
+<div class="min-h-screen">
+<!-- Header -->
+<header class="bg-white shadow-sm p-4 flex justify-between items-center">
+<div><h1 class="text-2xl font-bold text-blue-600">SwissPark</h1></div>
+<button onclick="logout()" class="text-gray-600 hover:text-red-600">Déconnexion</button>
+</header>
+
+<!-- Main -->
+<main class="max-w-md mx-auto p-6">
+<!-- User Info -->
+<div class="bg-white rounded-2xl p-4 mb-6 shadow-sm">
+<p class="text-sm text-gray-600">Connecté: <span id="userPhone" class="font-semibold text-blue-600"></span></p>
+<p class="text-sm text-gray-600">Véhicule: <span class="font-semibold">GE 12345</span></p>
+</div>
+
+<!-- Parking Status -->
+<div id="parkingStatus" class="bg-white rounded-3xl p-8 shadow-xl text-center">
+<!-- Start View -->
+<div id="startView">
+<h2 class="text-xl font-bold text-gray-800 mb-2">Démarrer le parking</h2>
+<p class="text-gray-600 mb-6">Zone: Genève Centre - P1234</p>
+
+<!-- Wheel -->
+<div class="flex justify-center mb-6">
+<div class="wheel" onclick="adjustTime(15)">
+<div class="wheel-center">
+<div class="time-display" id="timeDisplay">1h</div>
+<div class="cost-display" id="costDisplay">CHF 4.00</div>
+</div>
+</div>
+</div>
+
+<div class="flex gap-2 mb-4">
+<button onclick="adjustTime(-15)" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-xl">− 15min</button>
+<button onclick="adjustTime(15)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl">+ 15min</button>
+</div>
+
+<button onclick="startParking()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg">🅿️ Démarrer le parking</button>
+</div>
+
+<!-- Active View -->
+<div id="activeView" class="hidden">
+<h2 class="text-xl font-bold text-green-600 mb-4">✅ Parking en cours</h2>
+<div class="bg-green-50 rounded-xl p-6 mb-6">
+<p class="text-gray-700 mb-2">Temps restant</p>
+<p class="text-4xl font-bold text-green-600" id="remainingTime">45min</p>
+<p class="text-gray-600 mt-4">Coût actuel: <span class="font-bold text-green-600" id="currentCost">CHF 2.50</span></p>
+</div>
+
+<button onclick="extendParking()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl mb-3">+ Prolonger 15min</button>
+<button onclick="stopParking()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl text-lg">⛔ Arrêter le parking</button>
+</div>
+</div>
+
+<!-- Quick Actions -->
+<div class="mt-6 grid grid-cols-2 gap-4">
+<button onclick="showHistory()" class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
+<div class="text-2xl mb-2">📝</div>
+<div class="text-sm font-semibold text-gray-700">Historique</div>
+</button>
+<button onclick="showVehicles()" class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
+<div class="text-2xl mb-2">🚗</div>
+<div class="text-sm font-semibold text-gray-700">Véhicules</div>
+</button>
+</div>
+
+<!-- Info -->
+<div class="mt-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+<p class="text-sm text-blue-800"><strong>ℹ️ Système EasyPark:</strong> Tournez la roue pour sélectionner le temps. Payez à la minute. Connexion par téléphone sécurisée!</p>
+</div>
+</main>
+</div>
+
+<script>
+const firebaseConfig = {authDomain: "swisspark-e4c0a.firebaseapp.com", projectId: "swisspark-e4c0a", apiKey: "AIzaSyB3uDEtxEcwxuRRqItU1G-sn5cAWse-gpc", storageBucket: "swisspark-e4c0a.firebasestorage.app", messagingSenderId: "852079002086", appId: "1:852079002086:web:d9d1f6c4e8b5a3c2d4e5f6"};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+let parkingMinutes = 60;
+const pricePerHour = 4.00;
+
+auth.onAuthStateChanged((user) => {if (user) {document.getElementById('userPhone').textContent = user.phoneNumber || 'Non disponible';} else {window.location.href = '/swisspark-web/';}});
+
+function adjustTime(minutes) {parkingMinutes = Math.max(15, Math.min(480, parkingMinutes + minutes)); updateDisplay();}
+
+function updateDisplay() {const hours = Math.floor(parkingMinutes / 60); const mins = parkingMinutes % 60; let timeStr = hours > 0 ? hours + 'h' : ''; timeStr += mins > 0 ? (hours > 0 ? ' ' : '') + mins + 'min' : ''; if(parkingMinutes === 60) timeStr = '1h'; document.getElementById('timeDisplay').textContent = timeStr; const cost = (parkingMinutes / 60 * pricePerHour).toFixed(2); document.getElementById('costDisplay').textContent = 'CHF ' + cost;}
+
+function startParking() {document.getElementById('startView').classList.add('hidden'); document.getElementById('activeView').classList.remove('hidden'); document.getElementById('remainingTime').textContent = document.getElementById('timeDisplay').textContent; document.getElementById('currentCost').textContent = document.getElementById('costDisplay').textContent;}
+
+function stopParking() {if(confirm('Arrêter le parking maintenant?')) {document.getElementById('startView').classList.remove('hidden'); document.getElementById('activeView').classList.add('hidden');}}
+
+function extendParking() {adjustTime(15); document.getElementById('remainingTime').textContent = document.getElementById('timeDisplay').textContent; document.getElementById('currentCost').textContent = document.getElementById('costDisplay').textContent;}
+
+function showHistory() {alert('Historique des parkings - À venir!');}
+function showVehicles() {alert('Gestion des véhicules - À venir!');}
+function logout() {auth.signOut().then(() => {window.location.href = '/swisspark-web/';});}
+
+updateDisplay();
+</script>
+</body>
+</html>
