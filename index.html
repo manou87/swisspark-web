@@ -9,19 +9,19 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --sp-pink: #E6007E; --sp-dark: #2D2D2D; --sp-twint: #000; }
+        :root { --sp-blue: #0066CC; --sp-dark: #2D2D2D; --sp-twint: #000; }
         body { font-family: 'Montserrat', sans-serif; background: #f8f9fa; overscroll-behavior: none; overflow: hidden; }
         #map { height: 100vh; width: 100%; z-index: 0; }
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); }
-        .btn-pink { background: var(--sp-pink); color: white; font-weight: 800; transition: 0.3s; border: none; }
-        .btn-pink:active { transform: scale(0.95); }
+        .btn-blue { background: var(--sp-blue); color: white; font-weight: 800; transition: 0.3s; border: none; }
+        .btn-blue:active { transform: scale(0.95); }
         #auth-overlay { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; padding: 2rem; }
         .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 32px 32px 0 0; z-index: 1000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); padding: 1.5rem; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
         .bottom-sheet.active { transform: translateY(0); }
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: white; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; align-items: center; z-index: 1001; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #9ca3af; font-weight: 700; gap: 4px; text-transform: uppercase; }
-        .nav-item.active { color: var(--sp-pink); }
-        .price-tag { background: var(--sp-pink); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 14px; border: 2px solid white; box-shadow: 0 4px 12px rgba(230,0,126,0.3); }
+        .nav-item.active { color: var(--sp-blue); }
+        .price-tag { background: var(--sp-blue); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 14px; border: 2px solid white; box-shadow: 0 4px 12px rgba(230,0,126,0.3); }
         .twint-btn { background: var(--sp-twint); color: white; border-radius: 16px; padding: 1.2rem; font-weight: 800; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .hidden { display: none !important; }
         .plate-input { font-family: 'Courier New', monospace; letter-spacing: 2px; text-transform: uppercase; border: 2px solid #ddd; border-radius: 8px; padding: 10px; font-size: 1.2rem; text-align: center; }
@@ -31,7 +31,7 @@
     <div id="auth-overlay">
         <div class="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
             <div class="mb-8 text-center">
-                <h1 class="text-3xl font-black text-[#E6007E] mb-2 tracking-tight">SwissPark</h1>
+                <h1 class="text-3xl font-black text-[#0066CC] mb-2 tracking-tight">SwissPark</h1>
                 <p class="text-gray-500 font-semibold">Le futur du parking en Suisse</p>
             </div>
             <div id="reg-form" class="space-y-4">
@@ -40,10 +40,10 @@
                 <input id="reg-email" type="email" placeholder="Email" class="w-full p-4 bg-gray-100 rounded-2xl border-none font-bold">
                 <input id="reg-pass" type="password" placeholder="Mot de passe" class="w-full p-4 bg-gray-100 rounded-2xl border-none font-bold">
                 <label class="flex items-start gap-3 p-2 cursor-pointer">
-                    <input type="checkbox" id="reg-terms" class="mt-1 w-5 h-5 accent-[#E6007E]">
+                    <input type="checkbox" id="reg-terms" class="mt-1 w-5 h-5 accent-[#0066CC]">
                     <span class="text-xs text-gray-500 font-medium">J'accepte les conditions générales de SwissPark.</span>
                 </label>
-                <button onclick="handleRegister()" class="w-full btn-pink p-5 rounded-2xl shadow-xl mt-4 text-lg">S'inscrire et Commencer</button>
+                <button onclick="handleRegister()" class="w-full btn-blue p-5 rounded-2xl shadow-xl mt-4 text-lg">S'inscrire et Commencer</button>
             </div>
         </div>
     </div>
@@ -56,7 +56,7 @@
             </div>
         </div>
         <button onclick="toggleVehicleModal(true)" class="fixed top-32 right-4 z-[1002] glass-panel p-3 flex items-center gap-2">
-            <i class="fas fa-car text-[#E6007E]"></i>
+            <i class="fas fa-car text-[#0066CC]"></i>
             <span id="active-vehicle-label" class="text-xs font-black uppercase">Véhicule</span>
         </button>
         <div id="booking-sheet" class="bottom-sheet pb-32">
@@ -72,8 +72,8 @@
                     <div id="spot-badge" class="px-3 py-1 rounded-lg text-xs font-black uppercase">Extérieur</div>
                 </div>
                 <div class="grid grid-cols-4 gap-2 mb-6 overflow-x-auto no-scrollbar">
-                    <div onclick="setPricingType('hr')" class="p-3 min-w-[80px] rounded-xl border-2 border-[#E6007E] bg-pink-50 cursor-pointer text-center price-option" id="price-hr">
-                        <p class="text-[8px] font-bold text-[#E6007E]">HEURE</p>
+                    <div onclick="setPricingType('hr')" class="p-3 min-w-[80px] rounded-xl border-2 border-[#0066CC] bg-blue-50 cursor-pointer text-center price-option" id="price-hr">
+                        <p class="text-[8px] font-bold text-[#0066CC]">HEURE</p>
                         <p class="text-sm font-black">3.-</p>
                     </div>
                     <div onclick="setPricingType('day')" class="p-3 min-w-[80px] rounded-xl border-2 border-transparent bg-gray-50 cursor-pointer text-center price-option" id="price-day">
@@ -94,7 +94,7 @@
                         <span>DURÉE</span>
                         <span id="current-duration">1 Heure</span>
                     </div>
-                    <input type="range" min="1" max="24" value="1" id="duration-slider" class="w-full accent-[#E6007E]" oninput="updateTotal()">
+                    <input type="range" min="1" max="24" value="1" id="duration-slider" class="w-full accent-[#0066CC]" oninput="updateTotal()">
                 </div>
                 <div class="space-y-4">
                     <div class="flex justify-between items-center text-xl font-black p-2">
@@ -120,7 +120,7 @@
                         <input id="veh-type" type="text" placeholder="Modèle" class="p-4 bg-gray-100 rounded-2xl font-bold">
                         <input id="veh-color" type="text" placeholder="Couleur" class="p-4 bg-gray-100 rounded-2xl font-bold">
                     </div>
-                    <button type="submit" class="w-full btn-pink p-5 rounded-2xl text-lg mt-4">Sauvegarder</button>
+                    <button type="submit" class="w-full btn-blue p-5 rounded-2xl text-lg mt-4">Sauvegarder</button>
                 </form>
             </div>
         </div>
@@ -165,7 +165,7 @@
             pricingType = t;
             ['hr','day','week','month'].forEach(id => {
                 const el = document.getElementById('price-'+id);
-                el.className = pricingType === id ? 'p-3 min-w-[80px] rounded-xl border-2 border-[#E6007E] bg-pink-50 cursor-pointer text-center' : 'p-3 min-w-[80px] rounded-xl border-2 border-transparent bg-gray-50 cursor-pointer text-center';
+                el.className = pricingType === id ? 'p-3 min-w-[80px] rounded-xl border-2 border-[#0066CC] bg-blue-50 cursor-pointer text-center' : 'p-3 min-w-[80px] rounded-xl border-2 border-transparent bg-gray-50 cursor-pointer text-center';
             });
             document.getElementById('duration-slider').max = (t === 'hr' ? 24 : 30);
             updateTotal();
