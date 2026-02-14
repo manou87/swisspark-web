@@ -92,6 +92,25 @@
                 }
             });
             recaptchaVerifier.render();
+
+                        // Gérer le préfixe +41 automatiquement
+            const phoneInput = document.getElementById('phoneNumber');
+            phoneInput.value = '+41 ';
+            
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value;
+                // Toujours garder +41 au début
+                if (!value.startsWith('+41 ')) {
+                    e.target.value = '+41 ';
+                }
+            });
+            
+            phoneInput.addEventListener('keydown', function(e) {
+                // Empêcher la suppression du +41
+                if ((e.key === 'Backspace' || e.key === 'Delete') && e.target.selectionStart <= 4) {
+                    e.preventDefault();
+                }
+            });
         };
 
         // Envoyer le code de vérification
